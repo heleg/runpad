@@ -1,0 +1,28 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "pnpm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "packages/excluded",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        "packages/excluded": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

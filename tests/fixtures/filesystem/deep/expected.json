@@ -1,0 +1,25 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "src/features/example",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

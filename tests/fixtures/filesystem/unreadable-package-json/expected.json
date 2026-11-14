@@ -1,0 +1,19 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "EACCES",
+        "path": "package.json",
+        "exitCode": 1
+      }
+    }
+  ],
+  "notes": "POSIX only; run as a non-root user. Unreadable YAML is currently ignored.",
+  "setup": {
+    "unreadable": "package.json"
+  }
+}

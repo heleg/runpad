@@ -1,0 +1,12 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log(process.cwd())\""
+  },
+  "packageManager": "npm@1.0.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
+}

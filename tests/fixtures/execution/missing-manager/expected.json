@@ -1,0 +1,22 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "pnpm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      },
+      "executionError": {
+        "messageContains": "ENOENT",
+        "exitCode": 1
+      }
+    }
+  ],
+  "notes": "Launch with an absolute Bun path and an empty PATH, then select dev. Preparation creates empty-path; no manager or script should start.",
+  "setup": {
+    "emptyPath": true
+  }
+}

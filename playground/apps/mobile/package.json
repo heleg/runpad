@@ -1,0 +1,26 @@
+{
+  "name": "@runpad/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock mobile workspace for script discovery and execution.",
+  "scripts": {
+    "dev": "node ../../scripts/mock-task.mjs dev --port=4102 --title=\"@runpad/mobile development\"",
+    "build:ios": "node ../../scripts/mock-task.mjs build:ios",
+    "build:android": "node ../../scripts/mock-task.mjs build:android",
+    "start": "node ../../scripts/mock-task.mjs start",
+    "test": "node --test",
+    "lint": "node ../../scripts/mock-task.mjs lint",
+    "clean": "node ../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build": "node ../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/mobile local preview\"",
+    "build:release": "node ../../scripts/mock-task.mjs clean && node ../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/mobile production release preview\" && node ../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/auth": "workspace:*",
+    "@runpad/api-client": "workspace:*"
+  }
+}

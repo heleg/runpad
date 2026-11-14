@@ -1,0 +1,22 @@
+{
+  "name": "@runpad/example-basic",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock example-basic workspace for script discovery and execution.",
+  "scripts": {
+    "dev": "node ../../scripts/mock-task.mjs dev --port=4105 --title=\"@runpad/example-basic development\"",
+    "build": "node ../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/example-basic local preview\"",
+    "start": "node ../../scripts/mock-task.mjs start",
+    "test": "node --test",
+    "lint": "node ../../scripts/mock-task.mjs lint",
+    "clean": "node ../../scripts/mock-task.mjs clean",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../scripts/mock-task.mjs clean && node ../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/example-basic production release preview\" && node ../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/api-client": "workspace:*"
+  }
+}

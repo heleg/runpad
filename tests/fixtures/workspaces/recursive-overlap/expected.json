@@ -1,0 +1,24 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "packages/group/deep": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Each package appears once; directories without manifests are omitted."
+}

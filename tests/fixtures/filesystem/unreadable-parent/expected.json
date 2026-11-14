@@ -1,0 +1,19 @@
+{
+  "launches": [
+    {
+      "cwd": "parent/child",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "EACCES",
+        "path": "parent",
+        "exitCode": 1
+      }
+    }
+  ],
+  "notes": "POSIX only, non-root user. Preparation leaves parent accessible so you can cd into parent/child first. Run chmod 000 .. before launching Runpad with an absolute Bun path; restore with chmod 700 .. afterward. The OS/runtime may report the denied ancestor before Runpad discovery starts.",
+  "setup": {
+    "unreadable": "parent"
+  }
+}

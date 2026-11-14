@@ -1,0 +1,19 @@
+{
+  "launches": [
+    {
+      "cwd": "empty",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "No package.json found",
+        "path": null,
+        "exitCode": 1
+      }
+    }
+  ],
+  "notes": "Must be copied outside this repository and any package.json ancestor.",
+  "setup": {
+    "isolated": true
+  }
+}

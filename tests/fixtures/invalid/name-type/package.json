@@ -1,0 +1,7 @@
+{
+  "name": 42,
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log(process.cwd())\""
+  }
+}

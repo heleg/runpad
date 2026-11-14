@@ -1,0 +1,29 @@
+{
+  "launches": [
+    {
+      "cwd": "packages/lib",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        "packages/lib": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": ".",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "No package.json found",
+        "path": null,
+        "exitCode": 1
+      }
+    }
+  ],
+  "notes": "Run outside the repository: root launch cannot find a child package.json.",
+  "setup": {
+    "isolated": true
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/a": [
+          "dev"
+        ],
+        "packages/b": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

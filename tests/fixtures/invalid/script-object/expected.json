@@ -1,0 +1,17 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "ValiError",
+        "path": "package.json",
+        "exitCode": 1,
+        "pathInMessage": false
+      }
+    }
+  ],
+  "notes": ""
+}

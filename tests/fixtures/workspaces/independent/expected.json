@@ -1,0 +1,38 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "tools/demo",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        "tools/demo": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "apps/web/examples/demo",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        "apps/web/examples/demo": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

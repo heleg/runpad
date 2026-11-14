@@ -1,0 +1,16 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "very-long-script-name-segment-segment-segment-segment-segment-segment-segment-segment-segment-segment-segment-segment-",
+          "multiline"
+        ]
+      }
+    }
+  ],
+  "notes": "Inspect truncation and Space preview. Esc closes preview; Esc again exits without execution."
+}

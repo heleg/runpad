@@ -1,0 +1,15 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        "packages/lib": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Valid YAML selects workspace mode; malformed root manifest is silently omitted."
+}

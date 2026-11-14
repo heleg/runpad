@@ -1,0 +1,53 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "yarn",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "apps/web",
+      "manager": "yarn",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "apps/web/src/features/example",
+      "manager": "yarn",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

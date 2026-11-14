@@ -1,0 +1,19 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "cwd-args",
+          "success",
+          "failure",
+          "input",
+          "long-running"
+        ]
+      }
+    }
+  ],
+  "notes": "cwd-args prints package cwd and fixed argv; success exits 0; failure exits 7; input echoes a line; long-running waits for Ctrl+C (signal exit reporting may differ by manager). Runpad currently has no CLI argument forwarding."
+}

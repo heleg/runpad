@@ -1,0 +1,8 @@
+{
+  "name": "fixture",
+  "private": true,
+  "scripts": {
+    "very-long-script-name-segment-segment-segment-segment-segment-segment-segment-segment-segment-segment-segment-segment-": "node -e \"console.log(process.cwd())\"",
+    "multiline": "node -e \"\nconsole.log('first line');\nconsole.log('second line');\n\""
+  }
+}

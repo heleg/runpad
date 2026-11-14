@@ -1,0 +1,21 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Preparation creates fake packages beneath node_modules and .git; neither should appear.",
+  "setup": {
+    "ignoredDirectories": true
+  }
+}

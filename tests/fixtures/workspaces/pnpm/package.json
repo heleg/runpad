@@ -1,0 +1,8 @@
+{
+  "name": "root",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log(process.cwd())\""
+  },
+  "packageManager": "pnpm@1.0.0"
+}

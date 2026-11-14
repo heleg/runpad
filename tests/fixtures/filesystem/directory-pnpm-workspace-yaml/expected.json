@@ -1,0 +1,15 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Linux/POSIX behavior: YAML read errors are ignored."
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@runpad/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock database workspace for script discovery and execution.",
+  "scripts": {
+    "build": "node ../../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/database local preview\"",
+    "dev": "node ../../../scripts/mock-task.mjs dev --port=4110 --title=\"@runpad/database development\"",
+    "test": "node --test",
+    "lint": "node ../../../scripts/mock-task.mjs lint",
+    "db:generate": "node ../../../scripts/mock-task.mjs db:generate",
+    "db:migrate": "node ../../../scripts/mock-task.mjs db:migrate",
+    "db:seed": "node ../../../scripts/mock-task.mjs db:seed",
+    "db:reset": "node ../../../scripts/mock-task.mjs db:reset",
+    "clean": "node ../../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../../scripts/mock-task.mjs clean && node ../../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/database production release preview\" && node ../../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/logger": "workspace:*"
+  }
+}

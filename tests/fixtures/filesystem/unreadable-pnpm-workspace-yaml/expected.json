@@ -1,0 +1,18 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "POSIX only; run as a non-root user. Unreadable YAML is currently ignored.",
+  "setup": {
+    "unreadable": "pnpm-workspace.yaml"
+  }
+}

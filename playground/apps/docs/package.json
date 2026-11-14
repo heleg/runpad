@@ -1,0 +1,23 @@
+{
+  "name": "@runpad/docs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock docs workspace for script discovery and execution.",
+  "scripts": {
+    "dev": "node ../../scripts/mock-task.mjs dev --port=4101 --title=\"@runpad/docs development\"",
+    "build": "node ../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/docs local preview\"",
+    "preview": "node ../../scripts/mock-task.mjs preview",
+    "lint": "node ../../scripts/mock-task.mjs lint",
+    "clean": "node ../../scripts/mock-task.mjs clean",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../scripts/mock-task.mjs clean && node ../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/docs production release preview\" && node ../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../scripts/mock-task.mjs inventory",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@runpad/ui": "workspace:*",
+    "@runpad/eslint-config": "workspace:*"
+  }
+}

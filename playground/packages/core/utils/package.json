@@ -1,0 +1,20 @@
+{
+  "name": "@runpad/utils",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock utils workspace for script discovery and execution.",
+  "scripts": {
+    "build": "node ../../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/utils local preview\"",
+    "dev": "node ../../../scripts/mock-task.mjs dev --port=4108 --title=\"@runpad/utils development\"",
+    "test": "node --test",
+    "lint": "node ../../../scripts/mock-task.mjs lint",
+    "bench": "node ../../../scripts/mock-task.mjs bench",
+    "clean": "node ../../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../../scripts/mock-task.mjs clean && node ../../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/utils production release preview\" && node ../../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../../scripts/mock-task.mjs inventory"
+  }
+}

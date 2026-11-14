@@ -1,0 +1,15 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Current behavior: silently ignores invalid YAML or schema, then uses JSON workspaces or standalone mode."
+}

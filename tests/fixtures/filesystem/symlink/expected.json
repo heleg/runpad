@@ -1,0 +1,18 @@
+{
+  "launches": [
+    {
+      "cwd": "link",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        "project": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Compare canonical cwd with project; preparation creates a relative symlink.",
+  "setup": {
+    "symlink": true
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "fixture",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log(process.cwd())\"",
+    "build": "node -e \"console.log('build')\"",
+    "test": "node -e \"console.log('test')\""
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "@runpad/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock ui workspace for script discovery and execution.",
+  "scripts": {
+    "dev": "node ../../scripts/mock-task.mjs dev --port=4115 --title=\"@runpad/ui development\"",
+    "build": "node ../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/ui local preview\"",
+    "test": "node --test",
+    "test:watch": "node ../../scripts/mock-task.mjs test:watch",
+    "lint": "node ../../scripts/mock-task.mjs lint",
+    "storybook": "node ../../scripts/mock-task.mjs storybook",
+    "storybook:build": "node ../../scripts/mock-task.mjs storybook:build",
+    "clean": "node ../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../scripts/mock-task.mjs clean && node ../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/ui production release preview\" && node ../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/tokens": "workspace:*",
+    "@runpad/utils": "workspace:*"
+  }
+}

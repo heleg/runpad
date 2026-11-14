@@ -1,0 +1,17 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "SyntaxError",
+        "path": "package.json",
+        "exitCode": 1,
+        "pathInMessage": false
+      }
+    }
+  ],
+  "notes": "Current raw parser/schema error does not reliably include the manifest path; path is the offending file, not an asserted diagnostic."
+}

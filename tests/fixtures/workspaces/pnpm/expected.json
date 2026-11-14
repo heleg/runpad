@@ -1,0 +1,53 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "pnpm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "apps/web",
+      "manager": "pnpm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "apps/web/src/features/example",
+      "manager": "pnpm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ],
+        "apps/web": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

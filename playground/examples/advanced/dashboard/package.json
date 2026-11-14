@@ -1,0 +1,25 @@
+{
+  "name": "@runpad/example-dashboard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock example-dashboard workspace for script discovery and execution.",
+  "scripts": {
+    "dev": "node ../../../scripts/mock-task.mjs dev --port=4104 --title=\"@runpad/example-dashboard development\"",
+    "build": "node ../../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/example-dashboard local preview\"",
+    "preview": "node ../../../scripts/mock-task.mjs preview",
+    "test": "node --test",
+    "lint": "node ../../../scripts/mock-task.mjs lint",
+    "clean": "node ../../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../../scripts/mock-task.mjs clean && node ../../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/example-dashboard production release preview\" && node ../../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/ui": "workspace:*",
+    "@runpad/api-client": "workspace:*",
+    "@runpad/auth": "workspace:*"
+  }
+}

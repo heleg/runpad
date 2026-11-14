@@ -1,0 +1,23 @@
+{
+  "name": "@runpad/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock api-client workspace for script discovery and execution.",
+  "scripts": {
+    "build": "node ../../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/api-client local preview\"",
+    "dev": "node ../../../scripts/mock-task.mjs dev --port=4114 --title=\"@runpad/api-client development\"",
+    "test": "node --test",
+    "lint": "node ../../../scripts/mock-task.mjs lint",
+    "generate": "node ../../../scripts/mock-task.mjs generate",
+    "clean": "node ../../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../../scripts/mock-task.mjs clean && node ../../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/api-client production release preview\" && node ../../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/validation": "workspace:*"
+  }
+}

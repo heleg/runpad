@@ -1,0 +1,15 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        ".": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Valid YAML but unsupported workspace shape: current code treats this as a standalone npm project."
+}

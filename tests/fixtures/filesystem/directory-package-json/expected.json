@@ -1,0 +1,16 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": null,
+      "workspace": null,
+      "packages": {},
+      "error": {
+        "messageContains": "EISDIR",
+        "path": "package.json",
+        "exitCode": 1
+      }
+    }
+  ],
+  "notes": "Linux/POSIX behavior: YAML read errors are ignored."
+}

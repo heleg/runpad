@@ -1,0 +1,11 @@
+{
+  "name": "fixture",
+  "private": true,
+  "scripts": {
+    "cwd-args": "node runner.mjs echo first \"two words\"",
+    "success": "node runner.mjs success",
+    "failure": "node runner.mjs fail",
+    "input": "node runner.mjs input",
+    "long-running": "node runner.mjs wait"
+  }
+}

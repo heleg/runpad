@@ -1,0 +1,44 @@
+{
+  "name": "runpad-test",
+  "version": "1.0.0",
+  "description": "A nested mock pnpm monorepo for testing script discovery, filtering, and execution.",
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/**\" --filter \"./services/**\" run dev",
+    "dev:web": "pnpm --filter @runpad/web run dev",
+    "dev:api": "pnpm --filter @runpad/api run dev",
+    "build": "pnpm -r --if-present run build",
+    "build:web": "pnpm --filter @runpad/web... run build",
+    "build:packages": "pnpm --filter \"./packages/**\" -r run build",
+    "start": "pnpm --filter @runpad/web run start",
+    "test": "pnpm -r --if-present run test",
+    "test:unit": "pnpm --filter @runpad/web run test:unit",
+    "test:integration": "pnpm -r --if-present run test:integration",
+    "test:e2e": "pnpm --filter @runpad/web run test:e2e",
+    "lint": "pnpm -r --if-present run lint",
+    "format": "node scripts/mock-task.mjs format",
+    "format:check": "node scripts/mock-task.mjs format:check",
+    "clean": "pnpm -r --if-present run clean && node scripts/mock-task.mjs clean",
+    "db:migrate": "pnpm --filter @runpad/database run db:migrate",
+    "db:seed": "pnpm --filter @runpad/database run db:seed",
+    "storybook": "pnpm --filter @runpad/ui run storybook",
+    "generate": "pnpm -r --if-present run generate",
+    "demo:fail": "node scripts/mock-task.mjs demo:fail",
+    "demo:slow": "node scripts/mock-task.mjs demo:slow --iterations=1000000",
+    "demo:stderr": "node scripts/mock-task.mjs demo:stderr",
+    "check:syntax": "pnpm -r --if-present run check:syntax",
+    "build:release": "pnpm --filter \"./packages/**\" --workspace-concurrency=4 -r run build && pnpm --filter \"./apps/**\" --workspace-concurrency=2 -r run build && pnpm --filter \"./services/**\" --workspace-concurrency=2 -r run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.18.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.18.0",
+  "type": "module",
+  "private": true
+}

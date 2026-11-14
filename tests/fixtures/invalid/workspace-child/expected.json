@@ -1,0 +1,18 @@
+{
+  "launches": [
+    {
+      "cwd": ".",
+      "manager": "npm",
+      "workspace": ".",
+      "packages": {
+        ".": [
+          "dev"
+        ],
+        "packages/lib": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": "Malformed child is silently omitted."
+}

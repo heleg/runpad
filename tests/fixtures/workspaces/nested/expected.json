@@ -1,0 +1,31 @@
+{
+  "launches": [
+    {
+      "cwd": "apps/inner",
+      "manager": "yarn",
+      "workspace": "apps/inner",
+      "packages": {
+        "apps/inner": [
+          "dev"
+        ],
+        "apps/inner/packages/lib": [
+          "dev"
+        ]
+      }
+    },
+    {
+      "cwd": "apps/inner/packages/lib",
+      "manager": "yarn",
+      "workspace": "apps/inner",
+      "packages": {
+        "apps/inner": [
+          "dev"
+        ],
+        "apps/inner/packages/lib": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

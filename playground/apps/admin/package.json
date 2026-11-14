@@ -1,0 +1,26 @@
+{
+  "name": "@runpad/admin",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mock admin workspace for script discovery and execution.",
+  "scripts": {
+    "dev": "node ../../scripts/mock-task.mjs dev --port=4100 --title=\"@runpad/admin development\"",
+    "build": "node ../../scripts/mock-task.mjs build --mode=development --title=\"@runpad/admin local preview\"",
+    "start": "node ../../scripts/mock-task.mjs start",
+    "test": "node --test",
+    "lint": "node ../../scripts/mock-task.mjs lint",
+    "storybook": "node ../../scripts/mock-task.mjs storybook",
+    "clean": "node ../../scripts/mock-task.mjs clean",
+    "check:syntax": "node ../../scripts/mock-task.mjs check:syntax",
+    "info": "node -p \"process.cwd()\"",
+    "runtime": "node --version",
+    "build:release": "node ../../scripts/mock-task.mjs clean && node ../../scripts/mock-task.mjs build --mode=production --title=\"@runpad/admin production release preview\" && node ../../scripts/mock-task.mjs analyze --report=release-source-inventory-with-sha256-checksums.json",
+    "inventory": "node ../../scripts/mock-task.mjs inventory"
+  },
+  "dependencies": {
+    "@runpad/ui": "workspace:*",
+    "@runpad/auth": "workspace:*",
+    "@runpad/api-client": "workspace:*"
+  }
+}

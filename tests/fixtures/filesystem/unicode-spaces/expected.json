@@ -1,0 +1,15 @@
+{
+  "launches": [
+    {
+      "cwd": "проект с пробелами",
+      "manager": "npm",
+      "workspace": null,
+      "packages": {
+        "проект с пробелами": [
+          "dev"
+        ]
+      }
+    }
+  ],
+  "notes": ""
+}

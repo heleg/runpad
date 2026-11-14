@@ -1,0 +1,7 @@
+{
+  "name": "deep",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log(process.cwd())\""
+  }
+}
