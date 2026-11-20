@@ -1,12 +1,25 @@
 import { Box, Text, useApp, useInput, useWindowSize } from "ink";
 import { useState } from "react";
 
-import Command from "./Command";
+import { getConfig } from "../config/config";
+import type { Favorite } from "../loadConfig";
+import {
+  favoritesFor,
+  refId,
+  resolveFavorites,
+  withoutRefs,
+} from "../utils/favorites";
+import orderScripts from "../utils/orderScripts";
+import toDisplayText from "../utils/toDisplayText";
+import Command, { hasMarkers } from "./Command";
 import ScriptPreview, { PREVIEW_HEIGHT } from "./ScriptPreview";
 import ScriptViewer from "./ScriptViewer";
+import useFavorites from "./useFavorites";
 import useScrollOffset from "./useScrollOffset";
 
 export interface WorkspacePackage {
+  /** Directory relative to the workspace root, "." for the root package. */
+  key: string;
   name: string;
   packageJsonPath: string;
   isRoot?: boolean;
@@ -18,31 +31,98 @@ interface WorkspaceProps {
   onSelect: (workspacePackage: WorkspacePackage, script: string) => void;
 }
 
+interface ScriptRow {
+  id: string;
+  pkg: WorkspacePackage;
+  name: string;
+  script: string;
+  isFavorite: boolean;
+  isPinned: boolean;
+  isHidden: boolean;
+  packageName?: string;
+}
+
+// Row 0 of the packages column is the ★ Favorites pseudo-package (personal
+// favorites, then pinned from the shared config), real packages start at 1.
+const FAVORITES_ROW = 0;
+
 function Workspace({ packages, onSelect }: WorkspaceProps) {
   const { rows } = useWindowSize();
   const [isViewing, setIsViewing] = useState(false);
   const { exit } = useApp();
-  const [packageIndex, setPackageIndex] = useState(0);
+  const { favorites, toggle, error } = useFavorites();
+  const [showHidden, setShowHidden] = useState(false);
+  const { hidden, pinned: configPinned } = getConfig().scripts;
+  const hiddenIds = new Set(hidden.map(refId));
+  // Hidden beats pinned, unless hidden are shown; favorites always stay,
+  // they are the user's own choice.
+  const pinnedFor = (withHidden: boolean) =>
+    withHidden ? configPinned : withoutRefs(configPinned, hidden);
+  const [packageIndex, setPackageIndex] = useState(() =>
+    resolveFavorites([...favorites, ...pinnedFor(false)], packages).length > 0
+      ? FAVORITES_ROW
+      : 1,
+  );
   const [scriptIndex, setScriptIndex] = useState(0);
   const [activeColumn, setActiveColumn] = useState<"packages" | "scripts">(
     "packages",
   );
-  const selectedPackageIndex = Math.min(
-    packageIndex,
-    Math.max(0, packages.length - 1),
-  );
-  const selectedPackage = packages[selectedPackageIndex];
-  const scripts = Object.entries(selectedPackage?.scripts ?? {});
+
+  const packageRowCount = packages.length + 1;
+  const selectedPackageIndex = Math.min(packageIndex, packageRowCount - 1);
+  const isFavoritesSelected = selectedPackageIndex === FAVORITES_ROW;
+  const selectedPackage = isFavoritesSelected
+    ? undefined
+    : packages[selectedPackageIndex - 1];
+
+  const buildScriptRows = (
+    current: readonly Favorite[],
+    withHidden: boolean,
+  ): ScriptRow[] => {
+    const pinned = pinnedFor(withHidden);
+    if (isFavoritesSelected) {
+      const pinnedIds = new Set(pinned.map(refId));
+      const favoriteIds = new Set(current.map(refId));
+      return resolveFavorites([...current, ...pinned], packages).map(
+        ({ pkg, favorite, script }) => {
+          const id = refId(favorite);
+          return {
+            id,
+            pkg,
+            name: favorite.script,
+            script,
+            isPinned: pinnedIds.has(id),
+            isFavorite: favoriteIds.has(id),
+            isHidden: hiddenIds.has(id) && !favoriteIds.has(id),
+            packageName: pkg.name,
+          };
+        },
+      );
+    }
+    if (!selectedPackage) {
+      return [];
+    }
+    return orderScripts(
+      selectedPackage.scripts,
+      favoritesFor(current, selectedPackage.key),
+      favoritesFor(pinned, selectedPackage.key),
+      favoritesFor(hidden, selectedPackage.key),
+      withHidden,
+    ).map((entry) => ({ id: entry.name, pkg: selectedPackage, ...entry }));
+  };
+
+  const scripts = buildScriptRows(favorites, showHidden);
+  const showMarker = hasMarkers(scripts);
   const selectedScriptIndex = Math.min(
     scriptIndex,
     Math.max(0, scripts.length - 1),
   );
+  const selectedRow = scripts[selectedScriptIndex];
   const showPreview = activeColumn === "scripts";
-  const selectedScriptText = scripts[selectedScriptIndex]?.[1];
   const visibleRows = Math.max(1, rows - 7 - PREVIEW_HEIGHT);
   const packageOffset = useScrollOffset(
     selectedPackageIndex,
-    packages.length,
+    packageRowCount,
     visibleRows,
   );
   const scriptOffset = useScrollOffset(
@@ -53,13 +133,44 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
 
   useInput(
     (input, key) => {
+      // Shift and Caps Lock send upper case; letter keys work either way.
+      const letter = input.toLowerCase();
       if (input === " ") {
-        if (showPreview && selectedScriptText !== undefined) {
+        if (showPreview && selectedRow) {
           setIsViewing(true);
         }
         return;
       }
-      if (key.escape || input === "q") {
+      if (letter === "f") {
+        if (activeColumn === "scripts" && selectedRow) {
+          const next = toggle({
+            package: selectedRow.pkg.key,
+            script: selectedRow.name,
+          });
+          // Follow the row if it moved. If it left the favorites list,
+          // keep the index: it clamps to the next row.
+          const nextIndex = buildScriptRows(next, showHidden).findIndex(
+            (row) => row.id === selectedRow.id,
+          );
+          if (nextIndex !== -1) {
+            setScriptIndex(nextIndex);
+          }
+        }
+        return;
+      }
+      if (letter === "h") {
+        // Follow the selected row; if it gets hidden, keep the index:
+        // it clamps to the next row.
+        const nextIndex = buildScriptRows(favorites, !showHidden).findIndex(
+          (row) => row.id === selectedRow?.id,
+        );
+        if (nextIndex !== -1) {
+          setScriptIndex(nextIndex);
+        }
+        setShowHidden(!showHidden);
+        return;
+      }
+      if (key.escape || letter === "q") {
         exit();
         return;
       }
@@ -69,10 +180,8 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
         return;
       }
 
-      if (key.rightArrow) {
-        if (selectedPackage) {
-          setActiveColumn("scripts");
-        }
+      if (key.rightArrow || (key.return && activeColumn === "packages")) {
+        setActiveColumn("scripts");
         return;
       }
 
@@ -81,7 +190,7 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
         if (activeColumn === "packages") {
           const nextIndex = Math.max(
             0,
-            Math.min(packages.length - 1, selectedPackageIndex + direction),
+            Math.min(packageRowCount - 1, selectedPackageIndex + direction),
           );
           if (nextIndex !== selectedPackageIndex) {
             setPackageIndex(nextIndex);
@@ -98,16 +207,8 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
         return;
       }
 
-      if (key.return && activeColumn === "packages") {
-        if (selectedPackage) {
-          setActiveColumn("scripts");
-        }
-        return;
-      }
-
-      const selectedScript = scripts[selectedScriptIndex];
-      if (key.return && selectedPackage && selectedScript) {
-        onSelect(selectedPackage, selectedScript[0]);
+      if (key.return && selectedRow) {
+        onSelect(selectedRow.pkg, selectedRow.name);
         exit();
       }
     },
@@ -117,12 +218,24 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
   if (isViewing) {
     return (
       <ScriptViewer
-        name={scripts[selectedScriptIndex]?.[0] ?? ""}
-        script={selectedScriptText ?? ""}
+        name={
+          selectedRow?.packageName === undefined
+            ? (selectedRow?.name ?? "")
+            : `${selectedRow.packageName}${selectedRow.pkg.isRoot ? " [root]" : ""} › ${selectedRow.name}`
+        }
+        script={selectedRow?.script ?? ""}
         onClose={() => setIsViewing(false)}
+        onRun={() => {
+          if (selectedRow) {
+            onSelect(selectedRow.pkg, selectedRow.name);
+            exit();
+          }
+        }}
       />
     );
   }
+
+  const packageRows = [undefined, ...packages];
 
   return (
     <Box
@@ -135,7 +248,9 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
     >
       <Box position="absolute" top={-1} left={2}>
         <Text bold color="cyan">
-          {" Runpad · Workspace "}
+          {showHidden
+            ? " Runpad · Workspace · showing hidden "
+            : " Runpad · Workspace "}
         </Text>
       </Box>
       <Box marginX={2} columnGap={4} height={visibleRows + 1} flexShrink={0}>
@@ -146,24 +261,35 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
           >
             Packages
           </Text>
-          {packages.length === 0 && <Text dimColor>No packages found</Text>}
-          {packages
+          {packageRows
             .slice(packageOffset, packageOffset + visibleRows)
             .map((pkg, index) => {
               const isSelected = packageOffset + index === selectedPackageIndex;
+              const isActive = isSelected && activeColumn === "packages";
+              const cursor = isActive ? "▸ " : "  ";
+
+              if (!pkg) {
+                return (
+                  <Text
+                    key="\0favorites"
+                    bold={isSelected}
+                    color={isActive ? "yellowBright" : "yellow"}
+                    wrap="truncate-end"
+                  >
+                    {cursor}★ Favorites
+                  </Text>
+                );
+              }
+
               return (
                 <Text
                   key={pkg.packageJsonPath}
                   bold={isSelected}
-                  color={
-                    isSelected && activeColumn === "packages"
-                      ? "greenBright"
-                      : "green"
-                  }
+                  color={isActive ? "greenBright" : "green"}
                   wrap="truncate-end"
                 >
-                  {isSelected && activeColumn === "packages" ? "▸ " : "  "}
-                  {pkg.name}
+                  {cursor}
+                  {toDisplayText(pkg.name)}
                   {pkg.isRoot && (
                     <Text bold color="#FFA500">
                       {" "}
@@ -184,28 +310,47 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
           <Text bold color={activeColumn === "scripts" ? "cyanBright" : "cyan"}>
             Scripts
           </Text>
-          {scripts.length === 0 && <Text dimColor>No scripts found</Text>}
+          {scripts.length === 0 && (
+            <Text dimColor>
+              {isFavoritesSelected
+                ? "No favorites yet · press F on a script"
+                : "No scripts found"}
+            </Text>
+          )}
           {scripts
             .slice(scriptOffset, scriptOffset + visibleRows)
-            .map(([name, script], index) => (
-              <Box key={name} height={1} flexShrink={0} overflow="hidden">
+            .map((row, index) => (
+              <Box key={row.id} height={1} flexShrink={0} overflow="hidden">
                 <Command
                   isSelected={
                     activeColumn === "scripts" &&
                     scriptOffset + index === selectedScriptIndex
                   }
-                  name={name}
-                  script={script}
+                  name={row.name}
+                  script={row.script}
+                  isFavorite={row.isFavorite}
+                  isPinned={row.isPinned}
+                  isHidden={row.isHidden}
+                  showMarker={showMarker}
+                  packageName={row.packageName}
+                  isRootPackage={row.pkg.isRoot}
                 />
               </Box>
             ))}
         </Box>
       </Box>
-      <ScriptPreview script={selectedScriptText} hidden={!showPreview} />
+      <ScriptPreview script={selectedRow?.script} hidden={!showPreview} />
       <Box paddingX={1}>
-        <Text dimColor wrap="truncate-end">
-          ←→ Column · ↑↓ Navigate · Enter Select · Space View · Esc Exit
-        </Text>
+        {error ? (
+          <Text color="red" wrap="truncate-end">
+            {error}
+          </Text>
+        ) : (
+          <Text dimColor wrap="truncate-end">
+            ←→ Column · ↑↓ Navigate · Enter Select · Space View · F Favorite
+            {hidden.length > 0 && " · H Hidden"} · Esc Exit
+          </Text>
+        )}
       </Box>
     </Box>
   );

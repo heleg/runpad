@@ -6,12 +6,15 @@ import { attempt, toResult } from "withstand";
 import { parse as parseYaml } from "yaml";
 
 import packageJsonSchema from "./utils/packageJsonSchema";
+import toWorkspacePatterns, {
+  type WorkspacePatterns,
+} from "./utils/toWorkspacePatterns";
 
 const pnpmWorkspaceSchema = v.object({
   packages: v.array(v.string()),
 });
 
-const getWorkspacePatterns = async (cwd: string): Promise<string[] | null> => {
+const readWorkspacePatterns = async (cwd: string): Promise<string[] | null> => {
   const yamlPath = join(cwd, "pnpm-workspace.yaml");
   const yamlResult = await toResult(readFile(yamlPath, "utf8"));
 
@@ -50,6 +53,17 @@ const getWorkspacePatterns = async (cwd: string): Promise<string[] | null> => {
   }
 
   return workspaces?.packages ?? null;
+};
+
+/**
+ * Workspace patterns declared in `cwd`, or `null` if `cwd` is not a
+ * workspace root. The only place raw pattern strings are read.
+ */
+const getWorkspacePatterns = async (
+  cwd: string,
+): Promise<WorkspacePatterns | null> => {
+  const raw = await readWorkspacePatterns(cwd);
+  return raw ? toWorkspacePatterns(raw) : null;
 };
 
 export default getWorkspacePatterns;

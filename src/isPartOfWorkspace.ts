@@ -2,12 +2,14 @@ import { relative, sep } from "node:path";
 
 import { minimatch } from "minimatch";
 
+import type { WorkspacePatterns } from "./utils/toWorkspacePatterns";
+
 const isPartOfWorkspace = ({
   patterns,
   root,
   cwd,
 }: {
-  patterns: string[];
+  patterns: WorkspacePatterns;
   root: string;
   cwd: string;
 }) => {
@@ -17,15 +19,11 @@ const isPartOfWorkspace = ({
     return false;
   }
 
-  const included = patterns.some(
-    (pattern) => !pattern.startsWith("!") && minimatch(path, pattern),
-  );
-
-  const excluded = patterns.some(
-    (pattern) => pattern.startsWith("!") && minimatch(path, pattern.slice(1)),
-  );
-
-  return included && !excluded;
+  // Exclusions are already split out by toWorkspacePatterns. Without
+  // `nonegate`, minimatch would read the extglob `!(tools)/*` as a negation.
+  const matches = (pattern: string) =>
+    minimatch(path, pattern, { nonegate: true });
+  return patterns.include.some(matches) && !patterns.exclude.some(matches);
 };
 
 export default isPartOfWorkspace;

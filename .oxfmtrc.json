@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": ["tests/fixtures/**", "playground/**"],
+  "ignorePatterns": ["tests/fixtures/**", "playground/**", "schema.json"],
   "sortImports": true,
   "printWidth": 80,
   "proseWrap": "always"

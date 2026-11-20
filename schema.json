@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RunPad config",
+  "description": "Team settings for RunPad, committed to the repository.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "scripts": {
+      "type": "object",
+      "properties": {
+        "hidden": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string",
+                "description": "Package directory relative to the config root, \".\" for the root package."
+              },
+              "scripts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Script names of this package, as written in package.json."
+              }
+            },
+            "required": [
+              "package",
+              "scripts"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Scripts left out of the lists.",
+          "default": []
+        },
+        "pinned": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string",
+                "description": "Package directory relative to the config root, \".\" for the root package."
+              },
+              "scripts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Script names of this package, as written in package.json."
+              }
+            },
+            "required": [
+              "package",
+              "scripts"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Scripts shown at the top for the whole team.",
+          "default": []
+        }
+      },
+      "required": [],
+      "default": {},
+      "additionalProperties": false
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

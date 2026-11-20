@@ -415,8 +415,6 @@ describe("Full command preview", () => {
   test.todo("handles an empty command");
   test.todo("scrolls down one line with Down");
   test.todo("scrolls up one line with Up");
-  test.todo("scrolls down one page with PageDown");
-  test.todo("scrolls up one page with PageUp");
   test.todo("clamps scrolling at the first line");
   test.todo("clamps scrolling at the last page");
   test.todo("shows a line range indicator only when scrolling is needed");
@@ -427,6 +425,8 @@ describe("Full command preview", () => {
   test.todo("closes on Esc");
   test.todo("closes on q");
   test.todo("does not select or execute the script when closing");
+  test.todo("runs the previewed script on Enter");
+  test.todo("runs the previewed workspace script in its package on Enter");
   test.todo("starts a newly opened preview at the beginning");
   test.todo("handles Unicode and wide characters while wrapping");
 });

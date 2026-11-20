@@ -1,5 +1,4 @@
 import { readFile } from "node:fs/promises";
-import process from "node:process";
 
 import { render } from "ink";
 import * as v from "valibot";
@@ -12,15 +11,25 @@ import runScript from "./utils/runScript";
 const runPackage = async (packageJsonPath: string) => {
   const fileResult = await toResult(readFile(packageJsonPath, "utf8"));
   if (!fileResult.ok) {
-    throw fileResult.error;
+    throw new Error(`Failed to read ${packageJsonPath}`, {
+      cause: fileResult.error,
+    });
   }
 
-  const parsed = attempt(() => JSON.parse(fileResult.value));
+  const parsed = attempt((): unknown => JSON.parse(fileResult.value));
   if (!parsed.ok) {
-    throw parsed.error;
+    throw new Error(`Failed to read ${packageJsonPath}`, {
+      cause: parsed.error,
+    });
   }
 
-  const packageJson = v.parse(packageJsonSchema, parsed.value);
+  const result = v.safeParse(packageJsonSchema, parsed.value);
+  if (!result.success) {
+    throw new Error(
+      `Invalid ${packageJsonPath}: ${v.summarize(result.issues)}`,
+    );
+  }
+  const packageJson = result.output;
 
   const scripts = packageJson.scripts ?? {};
 
@@ -39,7 +48,7 @@ const runPackage = async (packageJsonPath: string) => {
   await waitUntilExit();
 
   if (!selectedScript) {
-    return process.exit(0);
+    return;
   }
 
   await runScript({

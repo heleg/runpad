@@ -1,0 +1,11 @@
+{
+  "$schema": "https://unpkg.com/@heleg/runpad/schema.json",
+  "scripts": {
+    "hidden": [
+      {
+        "package": ".",
+        "scripts": ["prepare", "schema"]
+      }
+    ]
+  }
+}

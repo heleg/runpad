@@ -1,6 +1,8 @@
 import { Box, Text, useWindowSize } from "ink";
 import wrapAnsi from "wrap-ansi";
 
+import toDisplayText from "../utils/toDisplayText";
+
 interface ScriptPreviewProps {
   script?: string;
   hidden?: boolean;
@@ -13,7 +15,7 @@ function ScriptPreview({ script, hidden = false }: ScriptPreviewProps) {
   const width = Math.max(1, columns - 12);
   const wrapOptions = { hard: true, wordWrap: false, trim: false };
   const lines = wrapAnsi(
-    script ?? "No script selected",
+    script === undefined ? "No script selected" : toDisplayText(script),
     width,
     wrapOptions,
   ).split("\n");

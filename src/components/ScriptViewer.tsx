@@ -2,16 +2,20 @@ import { Box, Text, useInput, useWindowSize } from "ink";
 import { useState } from "react";
 import wrapAnsi from "wrap-ansi";
 
+import toDisplayText from "../utils/toDisplayText";
+
 interface ScriptViewerProps {
   name: string;
   script: string;
   onClose: () => void;
+  /** Runs the script, same as Enter in the list. */
+  onRun: () => void;
 }
 
-function ScriptViewer({ name, script, onClose }: ScriptViewerProps) {
+function ScriptViewer({ name, script, onClose, onRun }: ScriptViewerProps) {
   const { rows, columns } = useWindowSize();
   const [offset, setOffset] = useState(0);
-  const lines = wrapAnsi(script, Math.max(1, columns - 6), {
+  const lines = wrapAnsi(toDisplayText(script), Math.max(1, columns - 6), {
     hard: true,
     wordWrap: false,
     trim: false,
@@ -23,17 +27,21 @@ function ScriptViewer({ name, script, onClose }: ScriptViewerProps) {
   const currentOffset = Math.min(offset, maxOffset);
 
   useInput((input, key) => {
-    if (input === " " || key.escape || input === "q") {
+    // Shift and Caps Lock send upper case; letter keys work either way.
+    const letter = input.toLowerCase();
+    if (input === " " || key.escape || letter === "q") {
       onClose();
       return;
     }
-    if (key.upArrow || key.pageUp) {
-      setOffset(Math.max(0, currentOffset - (key.pageUp ? height : 1)));
+    if (key.return) {
+      onRun();
+      return;
     }
-    if (key.downArrow || key.pageDown) {
-      setOffset(
-        Math.min(maxOffset, currentOffset + (key.pageDown ? height : 1)),
-      );
+    if (key.upArrow) {
+      setOffset(Math.max(0, currentOffset - 1));
+    }
+    if (key.downArrow) {
+      setOffset(Math.min(maxOffset, currentOffset + 1));
     }
   });
 
@@ -47,7 +55,7 @@ function ScriptViewer({ name, script, onClose }: ScriptViewerProps) {
       flexDirection="column"
     >
       <Text bold color="greenBright" wrap="truncate-end">
-        {name}
+        {toDisplayText(name)}
       </Text>
       <Box
         height={height}
@@ -64,7 +72,7 @@ function ScriptViewer({ name, script, onClose }: ScriptViewerProps) {
           ))}
       </Box>
       <Text dimColor wrap="truncate-end">
-        ↑↓ / PgUp/PgDn Scroll · Space / Esc Back
+        ↑↓ Scroll · Enter Run · Space / Esc Back
       </Text>
       {hasScroll && (
         <Text dimColor>

@@ -2,13 +2,13 @@ import { glob, readFile } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
 
 import { render } from "ink";
-import { createElement } from "react";
 import * as v from "valibot";
 import { attempt, toResult } from "withstand";
 
 import Workspace, { type WorkspacePackage } from "./components/Workspace";
 import getWorkspacePatterns from "./getWorkspacePatterns";
 import isPartOfWorkspace from "./isPartOfWorkspace";
+import { toPackageKey } from "./utils/favorites";
 import packageJsonSchema from "./utils/packageJsonSchema";
 import runScript from "./utils/runScript";
 
@@ -29,14 +29,14 @@ const readPackage = async (packageJsonPath: string) => {
 
 const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
   const root = resolve(workspaceRoot);
-  const patterns = (await getWorkspacePatterns(root)) ?? [];
+  const patterns = (await getWorkspacePatterns(root)) ?? {
+    include: [],
+    exclude: [],
+  };
   const directories = new Set([root]);
-  const includedPatterns = patterns.filter(
-    (pattern) => !pattern.startsWith("!"),
-  );
 
-  if (includedPatterns.length > 0) {
-    for await (const path of glob(includedPatterns, {
+  if (patterns.include.length > 0) {
+    for await (const path of glob(patterns.include, {
       cwd: root,
       exclude: [
         "**/node_modules",
@@ -64,6 +64,7 @@ const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
     }
 
     packages.push({
+      key: toPackageKey(root, directory),
       name: packageJson.name ?? (relative(root, directory) || "."),
       packageJsonPath: path,
       isRoot: directory === root,
@@ -84,12 +85,12 @@ const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
     | undefined;
 
   const { waitUntilExit } = render(
-    createElement(Workspace, {
-      packages,
-      onSelect: (workspacePackage, script) => {
+    <Workspace
+      packages={packages}
+      onSelect={(workspacePackage, script) => {
         selection = { workspacePackage, script };
-      },
-    }),
+      }}
+    />,
     { alternateScreen: true },
   );
 

@@ -2,31 +2,52 @@ import { useApp, useInput } from "ink";
 import { useState } from "react";
 
 const useKeyInput = ({
-  scripts,
+  scriptNames,
   onSelect,
   pageSize,
   onPreview,
+  onToggleFavorite,
+  onToggleHidden,
   isActive = true,
 }: {
-  scripts: Record<string, string>;
+  scriptNames: readonly string[];
   onSelect: (script: string) => void;
   pageSize: number;
   onPreview: () => void;
+  /** Returns the script's index in the reordered list. */
+  onToggleFavorite: (script: string) => number;
+  /**
+   * Shows or hides hidden scripts. Gets the selected script, if any, and
+   * returns the index to select in the new list.
+   */
+  onToggleHidden: (script: string | undefined) => number;
   isActive?: boolean;
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { exit } = useApp();
 
-  const scriptNames = Object.keys(scripts);
   const visibleRows = pageSize;
-  const scriptCount = Object.keys(scripts).length;
+  const scriptCount = scriptNames.length;
 
   useInput(
     (input, key) => {
+      // Shift and Caps Lock send upper case; letter keys work either way.
+      const letter = input.toLowerCase();
       if (input === " ") {
         if (scriptNames[selectedIndex] !== undefined) {
           onPreview();
         }
+        return;
+      }
+      if (letter === "f") {
+        const script = scriptNames[selectedIndex];
+        if (script !== undefined) {
+          setSelectedIndex(onToggleFavorite(script));
+        }
+        return;
+      }
+      if (letter === "h") {
+        setSelectedIndex(onToggleHidden(scriptNames[selectedIndex]));
         return;
       }
       if (key.upArrow) {
@@ -56,7 +77,7 @@ const useKeyInput = ({
         );
       }
 
-      if (key.escape || input === "q") {
+      if (key.escape || letter === "q") {
         exit();
       }
     },
