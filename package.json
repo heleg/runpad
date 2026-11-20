@@ -1,6 +1,25 @@
 {
   "name": "@heleg/runpad",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "description": "Terminal UI for browsing and running package.json scripts in single packages and npm, Yarn, pnpm and Bun workspaces.",
+  "keywords": [
+    "bun",
+    "cli",
+    "ink",
+    "interactive",
+    "monorepo",
+    "npm",
+    "npm-scripts",
+    "package-json",
+    "pnpm",
+    "script-runner",
+    "scripts",
+    "task-runner",
+    "terminal",
+    "tui",
+    "workspaces",
+    "yarn"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/heleg/runpad.git"
