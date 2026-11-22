@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getConfig } from "../config/config";
 import type { Favorite } from "../loadConfig";
 import {
+  descriptionFor,
   favoritesFor,
   refId,
   resolveFavorites,
@@ -12,7 +13,9 @@ import {
 import orderScripts from "../utils/orderScripts";
 import toDisplayText from "../utils/toDisplayText";
 import Command, { hasMarkers } from "./Command";
-import ScriptPreview, { PREVIEW_HEIGHT } from "./ScriptPreview";
+import ConfirmRun from "./ConfirmRun";
+import HelpView, { type HelpKey } from "./HelpView";
+import ScriptPreview, { PackagePreview, PREVIEW_HEIGHT } from "./ScriptPreview";
 import ScriptViewer from "./ScriptViewer";
 import useFavorites from "./useFavorites";
 import useScrollOffset from "./useScrollOffset";
@@ -21,14 +24,22 @@ export interface WorkspacePackage {
   /** Directory relative to the workspace root, "." for the root package. */
   key: string;
   name: string;
+  /** `name` from package.json, if it has one. */
+  packageName?: string;
+  /** `description` from package.json. */
+  description?: string;
   packageJsonPath: string;
   isRoot?: boolean;
+  /** The package RunPad was started in, unless that is the root. */
+  isCurrent?: boolean;
   scripts: Record<string, string>;
 }
 
 interface WorkspaceProps {
   packages: WorkspacePackage[];
   onSelect: (workspacePackage: WorkspacePackage, script: string) => void;
+  /** C on a script: copy its command; RunPad exits right after. */
+  onCopy: (workspacePackage: WorkspacePackage, script: string) => void;
 }
 
 interface ScriptRow {
@@ -46,26 +57,59 @@ interface ScriptRow {
 // favorites, then pinned from the shared config), real packages start at 1.
 const FAVORITES_ROW = 0;
 
-function Workspace({ packages, onSelect }: WorkspaceProps) {
+function Workspace({ packages, onSelect, onCopy }: WorkspaceProps) {
   const { rows } = useWindowSize();
   const [isViewing, setIsViewing] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const { exit } = useApp();
   const { favorites, toggle, error } = useFavorites();
   const [showHidden, setShowHidden] = useState(false);
-  const { hidden, pinned: configPinned } = getConfig().scripts;
+  const {
+    hidden,
+    pinned: configPinned,
+    confirm,
+    descriptions,
+  } = getConfig().scripts;
   const hiddenIds = new Set(hidden.map(refId));
+  const confirmIds = new Set(confirm.map(refId));
   // Hidden beats pinned, unless hidden are shown; favorites always stay,
   // they are the user's own choice.
   const pinnedFor = (withHidden: boolean) =>
     withHidden ? configPinned : withoutRefs(configPinned, hidden);
-  const [packageIndex, setPackageIndex] = useState(() =>
-    resolveFavorites([...favorites, ...pinnedFor(false)], packages).length > 0
+  const { lastRun } = getConfig();
+  const lastRunId = lastRun === undefined ? undefined : refId(lastRun);
+  // Start on the script run last time, in its own package, so repeating
+  // it is just Enter. If it is gone or hidden, start as usual.
+  const [start] = useState(() => {
+    const index = packages.findIndex((pkg) => pkg.key === lastRun?.package);
+    const pkg = packages[index];
+    if (!lastRun || !pkg) {
+      return undefined;
+    }
+    const scriptIndex = orderScripts(
+      pkg.scripts,
+      favoritesFor(favorites, pkg.key),
+      favoritesFor(pinnedFor(false), pkg.key),
+      favoritesFor(hidden, pkg.key),
+      false,
+    ).findIndex((entry) => entry.name === lastRun.script);
+    return scriptIndex === -1
+      ? undefined
+      : { packageIndex: index + 1, scriptIndex };
+  });
+  const [packageIndex, setPackageIndex] = useState(() => {
+    if (start) {
+      return start.packageIndex;
+    }
+    return resolveFavorites([...favorites, ...pinnedFor(false)], packages)
+      .length > 0
       ? FAVORITES_ROW
-      : 1,
-  );
-  const [scriptIndex, setScriptIndex] = useState(0);
+      : 1;
+  });
+  const [scriptIndex, setScriptIndex] = useState(start?.scriptIndex ?? 0);
   const [activeColumn, setActiveColumn] = useState<"packages" | "scripts">(
-    "packages",
+    start ? "scripts" : "packages",
   );
 
   const packageRowCount = packages.length + 1;
@@ -118,6 +162,38 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
     Math.max(0, scripts.length - 1),
   );
   const selectedRow = scripts[selectedScriptIndex];
+  const selectedDescription = selectedRow
+    ? descriptionFor(descriptions, {
+        package: selectedRow.pkg.key,
+        script: selectedRow.name,
+      })
+    : undefined;
+  const copy = (row: ScriptRow) => {
+    onCopy(row.pkg, row.name);
+    exit();
+  };
+  const run = (row: ScriptRow) => {
+    onSelect(row.pkg, row.name);
+    exit();
+  };
+  // Scripts from `scripts.confirm` ask first, from the list and the viewer.
+  const requestRun = (row: ScriptRow) => {
+    if (confirmIds.has(refId({ package: row.pkg.key, script: row.name }))) {
+      setIsConfirming(true);
+    } else {
+      run(row);
+    }
+  };
+  const packageMark = (pkg: WorkspacePackage) => {
+    if (pkg.isRoot) {
+      return " [root]";
+    }
+    return pkg.isCurrent ? " [current]" : "";
+  };
+  const rowTitle = (row: ScriptRow | undefined) =>
+    row === undefined
+      ? ""
+      : `${row.packageName ?? row.pkg.name}${packageMark(row.pkg)} › ${row.name}`;
   const showPreview = activeColumn === "scripts";
   const visibleRows = Math.max(1, rows - 7 - PREVIEW_HEIGHT);
   const packageOffset = useScrollOffset(
@@ -135,8 +211,15 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
     (input, key) => {
       // Shift and Caps Lock send upper case; letter keys work either way.
       const letter = input.toLowerCase();
+      if (input === "?") {
+        setIsHelpOpen(true);
+        return;
+      }
       if (input === " ") {
-        if (showPreview && selectedRow) {
+        // In the packages column Space opens the package, same as Enter.
+        if (activeColumn === "packages") {
+          setActiveColumn("scripts");
+        } else if (selectedRow) {
           setIsViewing(true);
         }
         return;
@@ -155,6 +238,12 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
           if (nextIndex !== -1) {
             setScriptIndex(nextIndex);
           }
+        }
+        return;
+      }
+      if (letter === "c") {
+        if (activeColumn === "scripts" && selectedRow) {
+          copy(selectedRow);
         }
         return;
       }
@@ -208,27 +297,61 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
       }
 
       if (key.return && selectedRow) {
-        onSelect(selectedRow.pkg, selectedRow.name);
-        exit();
+        requestRun(selectedRow);
       }
     },
-    { isActive: !isViewing },
+    { isActive: !isViewing && !isConfirming && !isHelpOpen },
   );
+
+  if (isHelpOpen) {
+    const keys: HelpKey[] = [
+      { keys: "↑↓", action: "Navigate" },
+      { keys: "←→", action: "Switch column" },
+      { keys: "Enter", action: "Open package, run script" },
+      { keys: "Space", action: "Open package, view script details" },
+      { keys: "C", action: "Copy the command and exit" },
+      { keys: "F", action: "Add or remove a favorite" },
+      ...(hidden.length > 0
+        ? [{ keys: "H", action: "Show or hide hidden scripts" }]
+        : []),
+      { keys: "?", action: "This help" },
+      { keys: "Esc, Q", action: "Exit" },
+    ];
+    return (
+      <HelpView keys={keys} isWorkspace onClose={() => setIsHelpOpen(false)} />
+    );
+  }
+
+  if (isConfirming && selectedRow) {
+    return (
+      <ConfirmRun
+        name={rowTitle(selectedRow)}
+        script={selectedRow.script}
+        description={selectedDescription?.description}
+        onConfirm={() => run(selectedRow)}
+        onCancel={() => setIsConfirming(false)}
+      />
+    );
+  }
 
   if (isViewing) {
     return (
       <ScriptViewer
-        name={
-          selectedRow?.packageName === undefined
-            ? (selectedRow?.name ?? "")
-            : `${selectedRow.packageName}${selectedRow.pkg.isRoot ? " [root]" : ""} › ${selectedRow.name}`
-        }
+        name={rowTitle(selectedRow)}
         script={selectedRow?.script ?? ""}
+        description={selectedDescription?.description}
+        details={selectedDescription?.details}
+        detailsFile={selectedDescription?.detailsFile}
+        detailsWidth={getConfig().viewer.detailsWidth}
         onClose={() => setIsViewing(false)}
         onRun={() => {
           if (selectedRow) {
-            onSelect(selectedRow.pkg, selectedRow.name);
-            exit();
+            requestRun(selectedRow);
+          }
+        }}
+        onCopy={() => {
+          if (selectedRow) {
+            copy(selectedRow);
           }
         }}
       />
@@ -296,6 +419,12 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
                       [root]
                     </Text>
                   )}
+                  {pkg.isCurrent && (
+                    <Text bold color="cyan">
+                      {" "}
+                      [current]
+                    </Text>
+                  )}
                 </Text>
               );
             })}
@@ -331,15 +460,50 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
                   isFavorite={row.isFavorite}
                   isPinned={row.isPinned}
                   isHidden={row.isHidden}
+                  isLastRun={
+                    refId({ package: row.pkg.key, script: row.name }) ===
+                    lastRunId
+                  }
+                  needsConfirm={confirmIds.has(
+                    refId({ package: row.pkg.key, script: row.name }),
+                  )}
+                  hasDetails={
+                    descriptionFor(descriptions, {
+                      package: row.pkg.key,
+                      script: row.name,
+                    })?.details !== undefined
+                  }
                   showMarker={showMarker}
                   packageName={row.packageName}
                   isRootPackage={row.pkg.isRoot}
+                  isCurrentPackage={row.pkg.isCurrent}
                 />
               </Box>
             ))}
         </Box>
       </Box>
-      <ScriptPreview script={selectedRow?.script} hidden={!showPreview} />
+      {showPreview ? (
+        <ScriptPreview
+          script={selectedRow?.script}
+          description={selectedDescription?.description}
+          isLastRun={
+            selectedRow !== undefined &&
+            refId({
+              package: selectedRow.pkg.key,
+              script: selectedRow.name,
+            }) === lastRunId
+          }
+        />
+      ) : (
+        <PackagePreview
+          description={
+            isFavoritesSelected
+              ? "Your favorites and scripts pinned for the team"
+              : selectedPackage?.description
+          }
+          path={selectedPackage?.key}
+        />
+      )}
       <Box paddingX={1}>
         {error ? (
           <Text color="red" wrap="truncate-end">
@@ -347,8 +511,7 @@ function Workspace({ packages, onSelect }: WorkspaceProps) {
           </Text>
         ) : (
           <Text dimColor wrap="truncate-end">
-            ←→ Column · ↑↓ Navigate · Enter Select · Space View · F Favorite
-            {hidden.length > 0 && " · H Hidden"} · Esc Exit
+            ↑↓←→ Navigate · Enter Select · Space View · ? Help · Esc Exit
           </Text>
         )}
       </Box>

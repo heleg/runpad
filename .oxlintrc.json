@@ -10,5 +10,10 @@
   "env": {
     "builtin": true
   },
-  "ignorePatterns": ["tests/fixtures/**", "playground/**"]
+  "ignorePatterns": [
+    "tests/fixtures/**",
+    "playground/**",
+    "website/.astro/**",
+    "website/dist/**"
+  ]
 }

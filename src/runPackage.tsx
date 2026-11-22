@@ -5,6 +5,8 @@ import * as v from "valibot";
 import { attempt, toResult } from "withstand";
 
 import Package from "./components/Package";
+import { rememberRun } from "./config/config";
+import copyRunCommand from "./utils/copyRunCommand";
 import packageJsonSchema from "./utils/packageJsonSchema";
 import runScript from "./utils/runScript";
 
@@ -34,12 +36,17 @@ const runPackage = async (packageJsonPath: string) => {
   const scripts = packageJson.scripts ?? {};
 
   let selectedScript: string | undefined;
+  let isCopy = false;
 
   const { waitUntilExit } = render(
     <Package
       scripts={scripts}
       onSelect={(script) => {
         selectedScript = script;
+      }}
+      onCopy={(script) => {
+        selectedScript = script;
+        isCopy = true;
       }}
     />,
     { alternateScreen: true },
@@ -51,6 +58,17 @@ const runPackage = async (packageJsonPath: string) => {
     return;
   }
 
+  if (isCopy) {
+    await copyRunCommand({
+      packageJsonPath,
+      script: selectedScript,
+      isCurrent: true,
+    });
+    return;
+  }
+
+  // In single-package mode the config root is the package itself.
+  rememberRun({ package: ".", script: selectedScript });
   await runScript({
     packageJsonPath: packageJsonPath,
     script: selectedScript,

@@ -1,0 +1,57 @@
+---
+import Default from "@astrojs/starlight/components/SiteTitle.astro";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const docsHref = `${base}/guides/getting-started/`;
+const isDocs = Astro.locals.starlightRoute.id.startsWith("guides/");
+---
+
+<div class="title-nav">
+  <Default />
+  <nav aria-label="Main">
+    <a href={docsHref} aria-current={isDocs ? "true" : undefined}>Docs</a>
+  </nav>
+</div>
+
+<style>
+  .title-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-width: 0;
+  }
+
+  .title-nav :global(.site-title) {
+    color: var(--sl-color-white);
+    gap: 0.6rem;
+    transition: color 150ms ease;
+  }
+
+  .title-nav :global(.site-title img) {
+    transition: transform 150ms ease;
+  }
+
+
+  .title-nav :global(.site-title:hover) {
+    color: var(--sl-color-text-accent);
+  }
+
+
+  @media (prefers-reduced-motion: reduce) {
+    .title-nav :global(.site-title),
+    .title-nav :global(.site-title img) {
+      transition: none;
+    }
+  }
+
+  nav a {
+    color: var(--sl-color-gray-2);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  nav a:hover,
+  nav a[aria-current] {
+    color: var(--sl-color-text-accent);
+  }
+</style>

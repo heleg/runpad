@@ -1,0 +1,130 @@
+/* Grays tinted with Tailwind sky (hue 204). Dark: deep blue in the
+   sky-900/950 range. Light: a light blue-gray instead of pure white. Green
+   accent to match the icon. */
+:root {
+  --sl-color-white: hsl(0, 0%, 100%);
+  --sl-color-gray-1: hsl(204, 40%, 94%);
+  --sl-color-gray-2: hsl(204, 22%, 80%);
+  --sl-color-gray-3: hsl(204, 16%, 62%);
+  --sl-color-gray-4: hsl(204, 22%, 44%);
+  --sl-color-gray-5: hsl(204, 42%, 24%);
+  --sl-color-gray-6: hsl(204, 72%, 15%);
+  --sl-color-black: hsl(204, 70%, 11%);
+
+  --sl-color-accent-low: #052e16;
+  --sl-color-accent: #16a34a;
+  --sl-color-accent-high: #86efac;
+}
+
+:root[data-theme="light"] {
+  --sl-color-white: hsl(204, 30%, 10%);
+  --sl-color-gray-1: hsl(204, 22%, 16%);
+  --sl-color-gray-2: hsl(204, 14%, 24%);
+  --sl-color-gray-3: hsl(204, 10%, 36%);
+  --sl-color-gray-4: hsl(204, 8%, 55%);
+  --sl-color-gray-5: hsl(204, 16%, 74%);
+  --sl-color-gray-6: hsl(204, 26%, 87%);
+  --sl-color-gray-7: hsl(204, 28%, 91%);
+  --sl-color-black: hsl(204, 30%, 95%);
+
+  --sl-color-accent-low: #dcfce7;
+  --sl-color-accent: #15803d;
+  --sl-color-accent-high: #14532d;
+}
+
+/* List marks on the Usage page, in the colors RunPad draws them. Terminal
+   yellow, cyan and red are too light on white, so light theme gets darker
+   shades. */
+:root {
+  --mark-yellow: #facc15;
+  --mark-cyan: #22d3ee;
+  --mark-red: #f87171;
+  --mark-orange: #ffa500;
+}
+
+:root[data-theme="light"] {
+  --mark-yellow: #ca8a04;
+  --mark-cyan: #0891b2;
+  --mark-red: #dc2626;
+  --mark-orange: #ea580c;
+}
+
+.mark {
+  display: inline-block;
+  min-width: 1.5em;
+  font-size: 1.5em;
+  line-height: 1;
+  text-align: center;
+}
+
+/* In running text a mark is only a bit larger than the words around it. */
+:is(p, li) .mark {
+  min-width: auto;
+  font-size: 1.25em;
+  vertical-align: -0.05em;
+}
+
+/* Labels the list draws in color, like ★ Favorites. */
+.mark-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mark-text {
+  font-family: var(--sl-font-mono);
+  font-weight: 600;
+}
+
+.mark-yellow {
+  color: var(--mark-yellow);
+}
+
+.mark-cyan {
+  color: var(--mark-cyan);
+}
+
+.mark-red {
+  color: var(--mark-red);
+}
+
+.mark-orange {
+  color: var(--mark-orange);
+}
+
+.mark-dim {
+  color: var(--sl-color-gray-3);
+}
+
+/* Keys drawn as keycaps: Starlight leaves <kbd> as small plain mono text,
+   easy to miss in a sentence. */
+.sl-markdown-content kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.05em 0.45em;
+  border: 1px solid var(--sl-color-gray-5);
+  border-bottom-width: 2px;
+  border-radius: 0.3em;
+  background: var(--sl-color-gray-6);
+  color: var(--sl-color-white);
+  font-family: var(--sl-font-mono);
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  vertical-align: 0.05em;
+  white-space: nowrap;
+}
+
+/* A cell of keys (`Esc, Q`) stays on one line. */
+.sl-markdown-content td:has(> kbd) {
+  white-space: nowrap;
+}
+
+/* The demo GIF has the same background as the page: a frame and a shadow
+   keep it from blending in. */
+.sl-markdown-content img[alt="RunPad demo"] {
+  display: block;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  box-shadow: 0 1rem 2.5rem -1rem rgb(0 0 0 / 0.5);
+}

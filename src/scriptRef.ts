@@ -35,6 +35,60 @@ export const scriptGroupSchema = plainObject({
 
 export type ScriptGroup = v.InferOutput<typeof scriptGroupSchema>;
 
+/** Description of a script, with `detailsFile` already read. */
+export interface ScriptDescription extends ScriptRef {
+  /** One line, shown above the command when the script is selected. */
+  description?: string;
+  /** As written in config, relative to the config root. */
+  detailsFile?: string;
+  /** Text of `detailsFile`, shown in the full command view. */
+  details?: string;
+}
+
+/**
+ * `{ "package": ".", "script": "start", "description": "...",
+ * "detailsFile": "docs/start.md" }`
+ */
+export const scriptDescriptionSchema = v.pipe(
+  plainObject({
+    package: v.pipe(
+      v.string(),
+      v.description(
+        'Package directory relative to the config root, "." for the root package.',
+      ),
+    ),
+    script: v.pipe(
+      v.string(),
+      v.description("Script name, as written in package.json."),
+    ),
+    description: v.optional(
+      v.pipe(
+        v.string(),
+        v.description(
+          "One line shown above the command when the script is selected.",
+        ),
+      ),
+    ),
+    detailsFile: v.optional(
+      v.pipe(
+        v.string(),
+        v.description(
+          "Markdown file relative to the config root, shown in the full command view (Space).",
+        ),
+      ),
+    ),
+  }),
+  v.check(
+    (entry) =>
+      entry.description !== undefined || entry.detailsFile !== undefined,
+    "Expected description or detailsFile",
+  ),
+);
+
+export type ScriptDescriptionEntry = v.InferOutput<
+  typeof scriptDescriptionSchema
+>;
+
 /** Expands groups into one ref per script, keeping the order. */
 export const expandGroups = (groups: readonly ScriptGroup[]): ScriptRef[] =>
   groups.flatMap(({ package: pkg, scripts }) =>

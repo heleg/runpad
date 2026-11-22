@@ -1,0 +1,45 @@
+---
+title: RunPad
+description:
+  Terminal UI for browsing and running package.json scripts in single packages
+  and npm, Yarn, pnpm and Bun workspaces.
+template: splash
+hero:
+  # Large enough to read on white too, so one light green for both themes.
+  image:
+    file: ../../assets/logo-dark.svg
+    alt: ""
+  # One line per line on the page.
+  tagline: |-
+    Every script from every package in one list.
+    Pick one, hit Enter, done.
+  actions:
+    - text: Get started
+      link: guides/getting-started/
+      icon: right-arrow
+    - text: GitHub
+      link: https://github.com/heleg/runpad
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+![RunPad demo](../../../../demo.gif)
+
+<CardGrid>
+  <Card title="One list for the monorepo" icon="list-format">
+    Scripts of every workspace package, no `--filter some-long-name` from
+    memory. Works with npm, Yarn, pnpm and Bun.
+  </Card>
+  <Card title="Shared with the team" icon="setting">
+    A committed config pins the scripts that matter, hides the noise and says
+    what each script does.
+  </Card>
+  <Card title="Yours too" icon="star">
+    Personal favorites on top, the last run script selected on start.
+  </Card>
+  <Card title="Safe by default" icon="warning">
+    Scripts that wipe a database ask before they run.
+  </Card>
+</CardGrid>

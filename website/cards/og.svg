@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#082030"/>
+  <g transform="translate(110 191.3) scale(13)" fill="none" stroke="#86efac" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+    <path d="m11 3.0236c-2.5-2.5-6.5-2.5-10-1v15c3.5-1.5 7.5-1.5 10 1 2.5-2.5 6.5-2.5 10-1v-15c-3.5-1.5-7.5-1.5-10 1z"/>
+    <path d="m6 6.5236 3.5 3-3.5 3m6 0h4"/>
+  </g>
+  <text x="476" y="215" font-family="Ubuntu" font-weight="700" font-size="112" fill="#ffffff">RunPad</text>
+  <text x="476" y="285" font-family="Ubuntu" font-size="36" fill="#c1ced7">Every script from every package</text>
+  <text x="476" y="333" font-family="Ubuntu" font-size="36" fill="#c1ced7">in one list. Pick one, hit Enter.</text>
+  <text x="476" y="415" font-family="Ubuntu Mono" font-size="34" fill="#86efac">$ mise use npm:@heleg/runpad</text>
+  <text x="476" y="455" font-family="Ubuntu" font-size="24" fill="#c1ced7" fill-opacity="0.7">or</text>
+  <text x="476" y="497" font-family="Ubuntu Mono" font-size="34" fill="#86efac">$ npm i -g @heleg/runpad</text>
+</svg>

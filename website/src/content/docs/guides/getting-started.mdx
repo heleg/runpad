@@ -1,0 +1,69 @@
+---
+title: Getting started
+description: Install RunPad and run your first script.
+---
+
+import { TabItem, Tabs } from "@astrojs/starlight/components";
+
+## Install
+
+The easiest way for a team is [mise](https://mise.jdx.dev): it pins RunPad in
+the project's `mise.toml`, so everyone who works on the project gets the same
+version, with nothing installed globally.
+
+<Tabs syncKey="install">
+  <TabItem label="mise">
+    Per project, pinned in its `mise.toml`:
+
+    ```bash
+    mise use npm:@heleg/runpad
+    ```
+
+    Or globally:
+
+    ```bash
+    mise use -g npm:@heleg/runpad
+    ```
+
+  </TabItem>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @heleg/runpad
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -g @heleg/runpad
+    ```
+  </TabItem>
+  <TabItem label="bun">
+    ```bash
+    bun add -g @heleg/runpad
+    ```
+  </TabItem>
+</Tabs>
+
+RunPad needs Node.js 22.18.0 or later.
+
+## Run
+
+Run `rp` anywhere inside a project. `runpad` is the same command with a longer
+name.
+
+```bash
+rp
+```
+
+RunPad finds the nearest `package.json`. Inside a workspace it lists every
+package of the workspace, the one you are in first. Outside of one it lists the
+scripts of that package.
+
+Pick a script with the arrow keys and press <kbd>Enter</kbd>. RunPad runs it
+with the package manager of the project, in the package directory, as
+`pnpm run <script>` would.
+
+## Next
+
+- [Using RunPad](../usage/): keys, marks and the script view.
+- [Configuration](../configuration/): pin, hide and describe scripts for the
+  whole team.

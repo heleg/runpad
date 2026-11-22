@@ -1,0 +1,11 @@
+{
+  "name": "@acme/api",
+  "private": true,
+  "description": "REST API, Fastify",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "test": "vitest run"
+  }
+}

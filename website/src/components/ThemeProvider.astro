@@ -1,0 +1,20 @@
+{/* Starlight's theme script, with dark instead of the system theme for a
+    first visit. Inlined like the original, so the page never flashes. */}
+<script is:inline>
+  (() => {
+    const key = "starlight-theme";
+    const storage = typeof localStorage === "undefined" ? undefined : localStorage;
+    // null: the visitor never picked a theme. Store dark, so the theme menu
+    // shows it too. "" is Auto, picked on purpose: follow the system.
+    if (storage && storage.getItem(key) === null) {
+      storage.setItem(key, "dark");
+    }
+    const stored = storage ? storage.getItem(key) : "dark";
+    const theme =
+      stored ||
+      (window.matchMedia("(prefers-color-scheme: light)").matches
+        ? "light"
+        : "dark");
+    document.documentElement.dataset.theme = theme === "light" ? "light" : "dark";
+  })();
+</script>

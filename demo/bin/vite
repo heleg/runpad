@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+// Stand-in for Vite in the demo recording: prints its startup banner and
+// stays up like a dev server.
+const green = (s) => `\x1b[32m${s}\x1b[39m`;
+const cyan = (s) => `\x1b[36m${s}\x1b[39m`;
+const bold = (s) => `\x1b[1m${s}\x1b[22m`;
+const dim = (s) => `\x1b[2m${s}\x1b[22m`;
+setTimeout(() => {
+  console.log(`\n  ${green(bold("VITE"))} ${green("v7.1.3")}  ${dim("ready in")} ${bold("284")} ${dim("ms")}\n`);
+  console.log(`  ${green("➜")}  ${bold("Local")}:   ${cyan("http://localhost:" + bold("5173") + "/")}`);
+  console.log(`  ${green("➜")}  ${dim("Network: use --host to expose")}`);
+}, 350);
+setInterval(() => {}, 1 << 30);

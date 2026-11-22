@@ -6,8 +6,10 @@ import * as v from "valibot";
 import { attempt, toResult } from "withstand";
 
 import Workspace, { type WorkspacePackage } from "./components/Workspace";
+import { rememberRun } from "./config/config";
 import getWorkspacePatterns from "./getWorkspacePatterns";
 import isPartOfWorkspace from "./isPartOfWorkspace";
+import copyRunCommand from "./utils/copyRunCommand";
 import { toPackageKey } from "./utils/favorites";
 import packageJsonSchema from "./utils/packageJsonSchema";
 import runScript from "./utils/runScript";
@@ -52,6 +54,7 @@ const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
     }
   }
 
+  const currentPath = resolve(packageJsonPath);
   const rootPackage = await readPackage(join(root, "package.json"));
   const packages: WorkspacePackage[] = [];
 
@@ -66,13 +69,16 @@ const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
     packages.push({
       key: toPackageKey(root, directory),
       name: packageJson.name ?? (relative(root, directory) || "."),
+      packageName: packageJson.name,
+      description: packageJson.description,
       packageJsonPath: path,
       isRoot: directory === root,
+      // In the root, `[root]` already says where you are.
+      isCurrent: directory !== root && path === currentPath,
       scripts: packageJson.scripts ?? {},
     });
   }
 
-  const currentPath = resolve(packageJsonPath);
   packages.sort((a, b) => {
     const currentOrder =
       Number(b.packageJsonPath === currentPath) -
@@ -81,14 +87,21 @@ const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
   });
 
   let selection:
-    | { workspacePackage: WorkspacePackage; script: string }
+    | {
+        workspacePackage: WorkspacePackage;
+        script: string;
+        action: "run" | "copy";
+      }
     | undefined;
 
   const { waitUntilExit } = render(
     <Workspace
       packages={packages}
       onSelect={(workspacePackage, script) => {
-        selection = { workspacePackage, script };
+        selection = { workspacePackage, script, action: "run" };
+      }}
+      onCopy={(workspacePackage, script) => {
+        selection = { workspacePackage, script, action: "copy" };
       }}
     />,
     { alternateScreen: true },
@@ -99,9 +112,24 @@ const runWorkspace = async (workspaceRoot: string, packageJsonPath: string) => {
     return;
   }
 
+  const { workspacePackage, script } = selection;
+  if (selection.action === "copy") {
+    await copyRunCommand({
+      packageJsonPath: workspacePackage.packageJsonPath,
+      script,
+      isCurrent: workspacePackage.packageJsonPath === currentPath,
+      // The root has no workspace form in every manager; its directory works.
+      packageName: workspacePackage.isRoot
+        ? undefined
+        : workspacePackage.packageName,
+    });
+    return;
+  }
+
+  rememberRun({ package: workspacePackage.key, script });
   await runScript({
-    packageJsonPath: selection.workspacePackage.packageJsonPath,
-    script: selection.script,
+    packageJsonPath: workspacePackage.packageJsonPath,
+    script,
   });
 };
 

@@ -1,6 +1,6 @@
 {
   "name": "@heleg/runpad",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Terminal UI for browsing and running package.json scripts in single packages and npm, Yarn, pnpm and Bun workspaces.",
   "keywords": [
     "bun",
@@ -28,6 +28,9 @@
     "rp": "dist/index.mjs",
     "runpad": "dist/index.mjs"
   },
+  "workspaces": [
+    "website"
+  ],
   "files": [
     "dist",
     "schema.json"
@@ -45,14 +48,18 @@
     "typecheck": "tsc --noEmit",
     "fmt": "oxfmt",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint:fix": "oxlint --fix",
+    "website:dev": "bun run --cwd website start",
+    "website:build": "bun run --cwd website build"
   },
   "dependencies": {
     "execa": "^10.2.1",
     "ink": "^8.0.0",
+    "marked": "^18.2.1",
     "minimatch": "^11.0.8",
     "nypm": "^0.6.12",
     "react": "^19.3.1",
+    "string-width": "^9.0.0",
     "valibot": "^1.5.0",
     "withstand": "^0.0.28",
     "wrap-ansi": "^10.0.2",

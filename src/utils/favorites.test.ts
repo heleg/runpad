@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 
 import {
+  descriptionFor,
   favoritesFor,
   resolveFavorites,
   toggleFavorite,
@@ -123,5 +124,30 @@ describe("resolveFavorites", () => {
         { package: ".", script: "lint" },
       ]),
     ).toEqual([".:lint=oxlint"]);
+  });
+});
+
+describe("descriptionFor", () => {
+  const descriptions = [
+    { package: ".", script: "start", description: "Root start" },
+    { package: "apps/web", script: "start", description: "Web start" },
+    { package: ".", script: "start", description: "Duplicate" },
+  ];
+
+  test("matches package and script, first entry wins", () => {
+    expect(
+      descriptionFor(descriptions, { package: ".", script: "start" })
+        ?.description,
+    ).toBe("Root start");
+    expect(
+      descriptionFor(descriptions, { package: "apps/web", script: "start" })
+        ?.description,
+    ).toBe("Web start");
+  });
+
+  test("returns undefined when not described", () => {
+    expect(
+      descriptionFor(descriptions, { package: "apps/api", script: "start" }),
+    ).toBeUndefined();
   });
 });

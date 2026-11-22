@@ -40,7 +40,16 @@ const writeFavorites = async (favorites: unknown) => {
   );
 };
 
-const defaults = { scripts: { hidden: [], pinned: [], favorites: [] } };
+const defaults = {
+  scripts: {
+    hidden: [],
+    pinned: [],
+    favorites: [],
+    confirm: [],
+    descriptions: [],
+  },
+  viewer: {},
+};
 const api = { package: "apps/api", script: "start" };
 const web = { package: "apps/web", script: "start" };
 // The same refs as written in runpad.config.json.
@@ -61,7 +70,14 @@ describe("loadConfig", () => {
     await writeShared({ scripts: { hidden: [webRef], pinned: [apiRef] } });
     await writeFavorites([webRef]);
     expect(await loadConfig(dir)).toEqual({
-      scripts: { hidden: [web], pinned: [api], favorites: [web] },
+      scripts: {
+        hidden: [web],
+        pinned: [api],
+        favorites: [web],
+        confirm: [],
+        descriptions: [],
+      },
+      viewer: {},
     });
   });
 
@@ -71,6 +87,32 @@ describe("loadConfig", () => {
     const { scripts } = await loadConfig(dir);
     expect(scripts.pinned).toEqual([api]);
     expect(scripts.favorites).toEqual([api]);
+  });
+});
+
+describe("confirm", () => {
+  test("expands groups into one ref per script", async () => {
+    await writeShared({
+      scripts: {
+        confirm: [{ package: "packages/db", scripts: ["reset", "clear"] }],
+      },
+    });
+    expect((await loadConfig(dir)).scripts.confirm).toEqual([
+      { package: "packages/db", script: "reset" },
+      { package: "packages/db", script: "clear" },
+    ]);
+  });
+});
+
+describe("viewer", () => {
+  test("reads the details width", async () => {
+    await writeShared({ viewer: { detailsWidth: 120 } });
+    expect((await loadConfig(dir)).viewer).toEqual({ detailsWidth: 120 });
+  });
+
+  test("rejects a width too narrow to read", async () => {
+    await writeShared({ viewer: { detailsWidth: 10 } });
+    await expect(loadConfig(dir)).rejects.toThrow("Invalid");
   });
 });
 
@@ -94,7 +136,10 @@ describe("script lists", () => {
           { package: "apps/web", script: "build" },
         ],
         favorites: [],
+        confirm: [],
+        descriptions: [],
       },
+      viewer: {},
     });
   });
 
@@ -120,6 +165,63 @@ describe("script lists", () => {
   test("rejects non-string items", async () => {
     await writeShared({
       scripts: { hidden: [{ package: ".", scripts: [1] }] },
+    });
+    await expect(loadConfig(dir)).rejects.toThrow("Invalid runpad.config.json");
+  });
+});
+
+describe("descriptions", () => {
+  test("reads one entry per script", async () => {
+    const start = { package: ".", script: "start", description: "Something" };
+    await writeShared({ scripts: { descriptions: [start] } });
+    expect((await loadConfig(dir)).scripts.descriptions).toEqual([start]);
+  });
+
+  test("reads detailsFile relative to the config root", async () => {
+    await mkdir(join(dir, "docs"));
+    await writeFile(join(dir, "docs", "start.md"), "# Start\n");
+    await writeShared({
+      scripts: {
+        descriptions: [
+          { package: ".", script: "start", detailsFile: "docs/start.md" },
+        ],
+      },
+    });
+    expect((await loadConfig(dir)).scripts.descriptions).toEqual([
+      {
+        package: ".",
+        script: "start",
+        detailsFile: "docs/start.md",
+        details: "# Start\n",
+      },
+    ]);
+  });
+
+  test("shows a missing detailsFile instead of failing", async () => {
+    await writeShared({
+      scripts: {
+        descriptions: [
+          { package: ".", script: "start", detailsFile: "docs/nope.md" },
+        ],
+      },
+    });
+    const [entry] = (await loadConfig(dir)).scripts.descriptions;
+    expect(entry?.details).toContain("docs/nope.md");
+    expect(entry?.details).toContain("ENOENT");
+  });
+
+  test("rejects an entry without description and detailsFile", async () => {
+    await writeShared({
+      scripts: { descriptions: [{ package: ".", script: "start" }] },
+    });
+    await expect(loadConfig(dir)).rejects.toThrow("Invalid runpad.config.json");
+  });
+
+  test("rejects a scripts array", async () => {
+    await writeShared({
+      scripts: {
+        descriptions: [{ package: ".", scripts: ["start"], description: "x" }],
+      },
     });
     await expect(loadConfig(dir)).rejects.toThrow("Invalid runpad.config.json");
   });
@@ -161,5 +263,74 @@ describe("validation", () => {
   test("throws when config path is a directory", async () => {
     await mkdir(join(dir, "runpad.config.json"));
     await expect(loadConfig(dir)).rejects.toThrow("Failed to read");
+  });
+});
+
+describe("YAML", () => {
+  const writeConfig = (fileName: string, text: string) =>
+    writeFile(join(dir, fileName), text);
+
+  test("reads runpad.config.yaml", async () => {
+    await writeConfig(
+      "runpad.config.yaml",
+      "scripts:\n  pinned:\n    - package: apps/api\n      scripts: [start]\n",
+    );
+    expect((await loadConfig(dir)).scripts.pinned).toEqual([api]);
+  });
+
+  test("reads runpad.config.yml", async () => {
+    await writeConfig(
+      "runpad.config.yml",
+      "scripts:\n  hidden:\n    - package: apps/web\n      scripts: [start]\n",
+    );
+    expect((await loadConfig(dir)).scripts.hidden).toEqual([web]);
+  });
+
+  test("shares fields between entries with anchors and merge keys", async () => {
+    await writeConfig(
+      "runpad.config.yaml",
+      [
+        "scripts:",
+        "  descriptions:",
+        "    - &reset",
+        "      package: packages/db",
+        "      script: db:reset",
+        "      description: Drop and restore",
+        "    - <<: *reset",
+        "      package: .",
+        "",
+      ].join("\n"),
+    );
+    expect((await loadConfig(dir)).scripts.descriptions).toEqual([
+      {
+        package: "packages/db",
+        script: "db:reset",
+        description: "Drop and restore",
+      },
+      { package: ".", script: "db:reset", description: "Drop and restore" },
+    ]);
+  });
+
+  test("a file with only comments is an empty config", async () => {
+    await writeConfig("runpad.config.yaml", "# nothing yet\n");
+    expect(await loadConfig(dir)).toEqual(defaults);
+  });
+
+  test("throws on broken YAML", async () => {
+    await writeConfig("runpad.config.yaml", "scripts: [unclosed\n");
+    await expect(loadConfig(dir)).rejects.toThrow("Failed to read");
+  });
+
+  test("validates YAML like JSON", async () => {
+    await writeConfig("runpad.config.yaml", "scripts:\n  hidden: lint\n");
+    await expect(loadConfig(dir)).rejects.toThrow("Invalid runpad.config.yaml");
+  });
+
+  test("rejects several config files", async () => {
+    await writeShared({});
+    await writeConfig("runpad.config.yaml", "scripts: {}\n");
+    await expect(loadConfig(dir)).rejects.toThrow(
+      "Found runpad.config.yaml and runpad.config.json",
+    );
   });
 });

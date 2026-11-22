@@ -3,15 +3,23 @@ import { useState } from "react";
 
 const useKeyInput = ({
   scriptNames,
-  onSelect,
+  onRun,
+  onCopy,
+  onHelp,
   pageSize,
   onPreview,
   onToggleFavorite,
   onToggleHidden,
   isActive = true,
+  initialIndex = 0,
 }: {
   scriptNames: readonly string[];
-  onSelect: (script: string) => void;
+  /** Enter on a script: runs it, or asks first. */
+  onRun: (script: string) => void;
+  /** C on a script: copies its command. */
+  onCopy: (script: string) => void;
+  /** `?`: opens the help. */
+  onHelp: () => void;
   pageSize: number;
   onPreview: () => void;
   /** Returns the script's index in the reordered list. */
@@ -22,8 +30,10 @@ const useKeyInput = ({
    */
   onToggleHidden: (script: string | undefined) => number;
   isActive?: boolean;
+  /** Row selected on start. */
+  initialIndex?: number;
 }) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const { exit } = useApp();
 
   const visibleRows = pageSize;
@@ -33,6 +43,10 @@ const useKeyInput = ({
     (input, key) => {
       // Shift and Caps Lock send upper case; letter keys work either way.
       const letter = input.toLowerCase();
+      if (input === "?") {
+        onHelp();
+        return;
+      }
       if (input === " ") {
         if (scriptNames[selectedIndex] !== undefined) {
           onPreview();
@@ -43,6 +57,13 @@ const useKeyInput = ({
         const script = scriptNames[selectedIndex];
         if (script !== undefined) {
           setSelectedIndex(onToggleFavorite(script));
+        }
+        return;
+      }
+      if (letter === "c") {
+        const script = scriptNames[selectedIndex];
+        if (script !== undefined) {
+          onCopy(script);
         }
         return;
       }
@@ -62,8 +83,7 @@ const useKeyInput = ({
         const script = scriptNames[selectedIndex];
 
         if (script !== undefined) {
-          onSelect(script);
-          exit();
+          onRun(script);
         }
       }
 

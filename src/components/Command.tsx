@@ -17,8 +17,16 @@ interface CommandProps {
   packageName?: string;
   /** Marks `packageName` as the workspace root. */
   isRootPackage?: boolean;
+  /** Marks `packageName` as the package RunPad was started in. */
+  isCurrentPackage?: boolean;
   /** Hidden by config, shown only on request: drawn dimmed. */
   isHidden?: boolean;
+  /** Has a `detailsFile`, opened with Space: marked after the name. */
+  hasDetails?: boolean;
+  /** Run last time in this project: marked after the name. */
+  isLastRun?: boolean;
+  /** Listed in `scripts.confirm`: asks before running, marked after the name. */
+  needsConfirm?: boolean;
 }
 
 // Pinned and favorite share one column, so ⚑ and ★ line up. A script that is
@@ -28,6 +36,12 @@ const PIN = "⚑";
 const STAR = "★";
 const PINNED_COLOR = "cyan";
 const FAVORITE_COLOR = "yellow";
+// Right after the name, so nothing after it needs to line up. Many fonts
+// draw ⓘ and ⚠ wider than their cell, so each gets a space of its own to spill into,
+// like the ⚑ / ★ marker.
+const DETAILS = "ⓘ";
+const CONFIRM = "⚠";
+const LAST_RUN = "↻";
 
 /** Whether any entry of a list has a marker. */
 export const hasMarkers = (
@@ -53,7 +67,11 @@ const Command = ({
   showMarker = false,
   packageName,
   isRootPackage = false,
+  isCurrentPackage = false,
   isHidden = false,
+  hasDetails = false,
+  needsConfirm = false,
+  isLastRun = false,
 }: CommandProps) => {
   const cursor = isSelected ? "▸ " : "  ";
   const nameColor = isSelected ? "greenBright" : "green";
@@ -68,12 +86,24 @@ const Command = ({
           <Text color="magenta" dimColor={isHidden}>
             {toDisplayText(packageName)}
             {isRootPackage && <Text bold> [root]</Text>}
+            {isCurrentPackage && <Text bold> [current]</Text>}
             {" › "}
           </Text>
         )}
         <Text bold={isSelected} color={nameColor} dimColor={isHidden}>
           {toDisplayText(name)}
         </Text>
+        {isLastRun && <Text dimColor>&nbsp;{LAST_RUN}&nbsp;</Text>}
+        {needsConfirm && (
+          <Text color="red" dimColor={isHidden}>
+            &nbsp;{CONFIRM}&nbsp;
+          </Text>
+        )}
+        {hasDetails && (
+          <Text color="cyan" dimColor={isHidden}>
+            &nbsp;{DETAILS}&nbsp;
+          </Text>
+        )}
         <Text dimColor={isHidden}>&nbsp;:&nbsp;</Text>
         <Text bold={isSelected} color={scriptColor} dimColor={isHidden}>
           {toDisplayText(script).replace(/\s+/g, " ")}

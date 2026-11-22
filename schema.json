@@ -61,6 +61,76 @@
           },
           "description": "Scripts shown at the top for the whole team.",
           "default": []
+        },
+        "confirm": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string",
+                "description": "Package directory relative to the config root, \".\" for the root package."
+              },
+              "scripts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Script names of this package, as written in package.json."
+              }
+            },
+            "required": [
+              "package",
+              "scripts"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Scripts that ask for confirmation before running, e.g. ones that wipe a database.",
+          "default": []
+        },
+        "descriptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "package": {
+                "type": "string",
+                "description": "Package directory relative to the config root, \".\" for the root package."
+              },
+              "script": {
+                "type": "string",
+                "description": "Script name, as written in package.json."
+              },
+              "description": {
+                "type": "string",
+                "description": "One line shown above the command when the script is selected."
+              },
+              "detailsFile": {
+                "type": "string",
+                "description": "Markdown file relative to the config root, shown in the full command view (Space)."
+              }
+            },
+            "required": [
+              "package",
+              "script"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Descriptions shown above the command of a script.",
+          "default": []
+        }
+      },
+      "required": [],
+      "default": {},
+      "additionalProperties": false
+    },
+    "viewer": {
+      "type": "object",
+      "properties": {
+        "detailsWidth": {
+          "type": "integer",
+          "minimum": 40,
+          "description": "Width of the details text in the script view (Space), in columns, centered in a wider terminal. Full width if not set."
         }
       },
       "required": [],

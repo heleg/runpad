@@ -1,4 +1,10 @@
-# RunPad
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="website/src/assets/logo-dark.svg">
+    <img src="website/src/assets/logo-light.svg" alt="" width="36">
+  </picture>
+  RunPad
+</h1>
 
 Terminal UI for browsing and running `package.json` scripts. Works in single
 packages and npm, Yarn, pnpm and Bun workspaces.
@@ -19,9 +25,9 @@ favorites on top.
 ## Install
 
 ```bash
-npm install -g @heleg/runpad # install globally
+mise use npm:@heleg/runpad # per project, pinned in mise.toml for the whole team
 # or
-mise use npm:@heleg/runpad # per project
+npm install -g @heleg/runpad # globally
 ```
 
 Requires Node.js >= 22.18.0.
@@ -33,19 +39,26 @@ name).
 
 ## Configuration
 
-Optional `runpad.config.json` in the workspace root (or package directory),
-shared with the team. `package` is the package path relative to that root, `"."`
-is the root package itself.
+Commit an optional `runpad.config.yaml` to the workspace root and the whole team
+gets the same list: the scripts that matter on top, the noise gone, a short note
+on what each one does.
 
-```json
-{
-  "$schema": "https://unpkg.com/@heleg/runpad/schema.json",
-  "scripts": {
-    "pinned": [{ "package": "apps/web", "scripts": ["dev", "build"] }],
-    "hidden": [{ "package": ".", "scripts": ["prepare"] }]
-  }
-}
+```yaml
+# yaml-language-server: $schema=https://unpkg.com/@heleg/runpad/schema.json
+scripts:
+  pinned:
+    - package: apps/web
+      scripts: [dev, build]
+  hidden:
+    - package: .
+      scripts: [prepare]
+  descriptions:
+    - package: apps/web
+      script: dev
+      description: Vite dev server on :5173
 ```
+
+Prefer JSON? `runpad.config.json` works too, with the same schema.
 
 ## Favorites
 

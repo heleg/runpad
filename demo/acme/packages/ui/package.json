@@ -1,0 +1,10 @@
+{
+  "name": "@acme/ui",
+  "private": true,
+  "description": "Shared React components",
+  "scripts": {
+    "build": "tsup",
+    "storybook": "storybook dev -p 6006",
+    "test": "vitest run"
+  }
+}

@@ -1,0 +1,143 @@
+---
+/**
+ * Home page hero: logo and title on one row, the tagline line by line as
+ * written in frontmatter, buttons, and an install snippet beside them.
+ */
+import {
+  Code,
+  LinkButton,
+  TabItem,
+  Tabs,
+} from "@astrojs/starlight/components";
+import { Image } from "astro:assets";
+
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline, image, actions = [] } = data.hero ?? {};
+const logo = image && "file" in image ? image.file : undefined;
+// Each line of the frontmatter tagline is its own line on the page, so it
+// breaks where it reads well, not wherever the width runs out.
+const taglineLines = (tagline ?? "").split("\n").filter(Boolean);
+
+// Global install per tool, then the first run. `syncKey` keeps the picked
+// tab in sync with the install tabs on Getting started.
+// mise first: it pins RunPad in the project's mise.toml, so the whole team
+// gets the same version with no global install.
+const installs = [
+  { label: "mise", command: "mise use npm:@heleg/runpad" },
+  { label: "npm", command: "npm install -g @heleg/runpad" },
+  { label: "pnpm", command: "pnpm add -g @heleg/runpad" },
+  { label: "bun", command: "bun add -g @heleg/runpad" },
+];
+---
+
+<div class="hero">
+  <div class="intro">
+    <div class="title">
+      {logo && <Image src={logo} alt="" width={72} height={72} loading="eager" />}
+      <h1 id="_top" data-page-title set:html={title} />
+    </div>
+    {
+      taglineLines.length > 0 && (
+        <p class="tagline">
+          {taglineLines.map((line) => (
+            <span set:html={line} />
+          ))}
+        </p>
+      )
+    }
+    {
+      actions.length > 0 && (
+        <div class="actions">
+          {actions.map(({ icon, link: href, text, variant }) => (
+            <LinkButton {href} {variant} icon={icon?.name}>
+              {text}
+            </LinkButton>
+          ))}
+        </div>
+      )
+    }
+  </div>
+  <div class="install">
+    <Tabs syncKey="install">
+      {
+        installs.map(({ label, command }) => (
+          <TabItem {label}>
+            <Code code={`${command}\nrp`} lang="bash" frame="terminal" />
+          </TabItem>
+        ))
+      }
+    </Tabs>
+  </div>
+</div>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+    padding-block: 2rem 1rem;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .title {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .title img {
+    width: clamp(3rem, 8vw, 4.5rem);
+    height: auto;
+  }
+
+  h1 {
+    font-size: clamp(var(--sl-text-4xl), calc(0.25rem + 5vw), var(--sl-text-6xl));
+    line-height: var(--sl-line-height-headings);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+
+  .tagline {
+    font-size: clamp(var(--sl-text-base), calc(0.0625rem + 2vw), var(--sl-text-xl));
+    color: var(--sl-color-gray-2);
+  }
+
+  .tagline span {
+    display: block;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    justify-content: center;
+  }
+
+  .install {
+    min-width: 0;
+  }
+
+  @media (min-width: 50rem) {
+    .hero {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      padding-block: clamp(2.5rem, calc(1rem + 8vmin), 6rem);
+    }
+
+    .intro {
+      align-items: flex-start;
+      text-align: start;
+    }
+
+    .actions {
+      justify-content: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,11 @@
+{
+  "name": "@acme/db",
+  "private": true,
+  "description": "Database schema and migrations",
+  "scripts": {
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx seed.ts",
+    "db:reset": "tsx reset.ts",
+    "db:studio": "drizzle-kit studio"
+  }
+}

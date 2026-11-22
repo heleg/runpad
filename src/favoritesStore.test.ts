@@ -189,7 +189,14 @@ describe("loadFavorites", () => {
   test("round-trips through loadConfig", async () => {
     saveFavorites(project, [dev]);
     expect(await loadConfig(project)).toEqual({
-      scripts: { hidden: [], pinned: [], favorites: [dev] },
+      scripts: {
+        hidden: [],
+        pinned: [],
+        favorites: [dev],
+        confirm: [],
+        descriptions: [],
+      },
+      viewer: {},
     });
   });
 });

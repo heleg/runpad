@@ -1,6 +1,6 @@
 import { relative, sep } from "node:path";
 
-import type { Favorite, ScriptRef } from "../loadConfig";
+import type { Favorite, ScriptDescription, ScriptRef } from "../loadConfig";
 
 /** Package key stored in config: posix path relative to root, "." for root. */
 export const toPackageKey = (root: string, directory: string): string =>
@@ -67,3 +67,10 @@ export const resolveFavorites = <
     return [{ favorite, pkg, script: pkg.scripts[favorite.script] ?? "" }];
   });
 };
+
+/** Description of a script from config, the first match wins. */
+export const descriptionFor = (
+  descriptions: readonly ScriptDescription[],
+  ref: ScriptRef,
+): ScriptDescription | undefined =>
+  descriptions.find((item) => refId(item) === refId(ref));

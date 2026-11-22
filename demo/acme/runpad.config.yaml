@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../schema.json
+scripts:
+  descriptions:
+    - package: apps/web
+      script: dev
+      description: Storefront dev server on :5173
+  confirm:
+    - package: packages/db
+      scripts: [db:reset]

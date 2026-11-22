@@ -1,0 +1,5 @@
+[install]
+# Starlight's Markdown parser (satteri) loads its native binary with a plain
+# require from the built site. With Bun's isolated install it isn't found
+# there, so hoist it to the root node_modules.
+publicHoistPattern = ["satteri", "@bruits/*"]

@@ -3,9 +3,11 @@ import { useState } from "react";
 
 import { getConfig } from "../config/config";
 import type { Favorite } from "../loadConfig";
-import { favoritesFor } from "../utils/favorites";
+import { descriptionFor, favoritesFor } from "../utils/favorites";
 import orderScripts, { type ScriptEntry } from "../utils/orderScripts";
 import Command, { hasMarkers } from "./Command";
+import ConfirmRun from "./ConfirmRun";
+import HelpView, { type HelpKey } from "./HelpView";
 import useKeyInput from "./package/useKeyInput";
 import ScriptPreview, { PREVIEW_HEIGHT } from "./ScriptPreview";
 import ScriptViewer from "./ScriptViewer";
@@ -18,18 +20,39 @@ const ROOT_KEY = ".";
 interface AppProps {
   scripts: Record<string, string>;
   onSelect: (script: string) => void;
+  /** C on a script: copy its command; RunPad exits right after. */
+  onCopy: (script: string) => void;
 }
 
-function App({ scripts, onSelect }: AppProps) {
+function App({ scripts, onSelect, onCopy }: AppProps) {
   const { rows } = useWindowSize();
   const { exit } = useApp();
   const [isViewing, setIsViewing] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [showHidden, setShowHidden] = useState(false);
 
   const { favorites, toggle, error } = useFavorites();
   const config = getConfig().scripts;
   const pinned = favoritesFor(config.pinned, ROOT_KEY);
   const hidden = favoritesFor(config.hidden, ROOT_KEY);
+  const confirm = new Set(favoritesFor(config.confirm, ROOT_KEY));
+  const copy = (name: string) => {
+    onCopy(name);
+    exit();
+  };
+  const run = (name: string) => {
+    onSelect(name);
+    exit();
+  };
+  // Scripts from `scripts.confirm` ask first, from the list and the viewer.
+  const requestRun = (name: string) => {
+    if (confirm.has(name)) {
+      setIsConfirming(true);
+    } else {
+      run(name);
+    }
+  };
   const order = (current: readonly Favorite[], withHidden: boolean) =>
     orderScripts(
       scripts,
@@ -39,6 +62,9 @@ function App({ scripts, onSelect }: AppProps) {
       withHidden,
     );
   const entries = order(favorites, showHidden);
+  const { lastRun } = getConfig();
+  const lastRunName =
+    lastRun?.package === ROOT_KEY ? lastRun.script : undefined;
 
   // Selects `name` in the new list. If it is gone (a hidden script that
   // stopped being a favorite, or hidden were turned off), stays at the same
@@ -54,7 +80,9 @@ function App({ scripts, onSelect }: AppProps) {
 
   const { selectedIndex } = useKeyInput({
     scriptNames: entries.map((entry) => entry.name),
-    onSelect,
+    onRun: requestRun,
+    onCopy: copy,
+    onHelp: () => setIsHelpOpen(true),
     pageSize: Math.max(1, Math.floor(rows / 2)),
     onPreview: () => setIsViewing(true),
     onToggleFavorite: (name) => {
@@ -65,24 +93,73 @@ function App({ scripts, onSelect }: AppProps) {
       setShowHidden(!showHidden);
       return indexIn(order(favorites, !showHidden), name);
     },
-    isActive: !isViewing,
+    isActive: !isViewing && !isConfirming && !isHelpOpen,
+    // Start on the script run last time, so repeating it is just Enter.
+    initialIndex: Math.max(
+      0,
+      entries.findIndex((entry) => entry.name === lastRunName),
+    ),
   });
   const selectedScript = entries[selectedIndex]?.script;
+  const selectedName = entries[selectedIndex]?.name;
+  const selectedDescription =
+    selectedName === undefined
+      ? undefined
+      : descriptionFor(config.descriptions, {
+          package: ROOT_KEY,
+          script: selectedName,
+        });
   const showMarker = hasMarkers(entries);
   const visibleRows = Math.max(1, rows - 6 - PREVIEW_HEIGHT);
   const offset = useScrollOffset(selectedIndex, entries.length, visibleRows);
+
+  if (isHelpOpen) {
+    const keys: HelpKey[] = [
+      { keys: "↑↓", action: "Navigate" },
+      { keys: "←→", action: "Page up, page down" },
+      { keys: "Enter", action: "Run the script" },
+      { keys: "Space", action: "View script details" },
+      { keys: "C", action: "Copy the command and exit" },
+      { keys: "F", action: "Add or remove a favorite" },
+      ...(hidden.length > 0
+        ? [{ keys: "H", action: "Show or hide hidden scripts" }]
+        : []),
+      { keys: "?", action: "This help" },
+      { keys: "Esc, Q", action: "Exit" },
+    ];
+    return <HelpView keys={keys} onClose={() => setIsHelpOpen(false)} />;
+  }
+
+  if (isConfirming && selectedName !== undefined) {
+    return (
+      <ConfirmRun
+        name={selectedName}
+        script={selectedScript ?? ""}
+        description={selectedDescription?.description}
+        onConfirm={() => run(selectedName)}
+        onCancel={() => setIsConfirming(false)}
+      />
+    );
+  }
 
   if (isViewing) {
     return (
       <ScriptViewer
         name={entries[selectedIndex]?.name ?? ""}
         script={selectedScript ?? ""}
+        description={selectedDescription?.description}
+        details={selectedDescription?.details}
+        detailsFile={selectedDescription?.detailsFile}
+        detailsWidth={getConfig().viewer.detailsWidth}
         onClose={() => setIsViewing(false)}
         onRun={() => {
-          const name = entries[selectedIndex]?.name;
-          if (name !== undefined) {
-            onSelect(name);
-            exit();
+          if (selectedName !== undefined) {
+            requestRun(selectedName);
+          }
+        }}
+        onCopy={() => {
+          if (selectedName !== undefined) {
+            copy(selectedName);
           }
         }}
       />
@@ -124,12 +201,24 @@ function App({ scripts, onSelect }: AppProps) {
                 isFavorite={isFavorite}
                 isPinned={isPinned}
                 isHidden={isHidden}
+                needsConfirm={confirm.has(name)}
+                isLastRun={name === lastRunName}
+                hasDetails={
+                  descriptionFor(config.descriptions, {
+                    package: ROOT_KEY,
+                    script: name,
+                  })?.details !== undefined
+                }
                 showMarker={showMarker}
               />
             );
           })}
       </Box>
-      <ScriptPreview script={selectedScript} />
+      <ScriptPreview
+        script={selectedScript}
+        description={selectedDescription?.description}
+        isLastRun={selectedName !== undefined && selectedName === lastRunName}
+      />
       <Box paddingX={1}>
         {error ? (
           <Text color="red" wrap="truncate-end">
@@ -137,8 +226,7 @@ function App({ scripts, onSelect }: AppProps) {
           </Text>
         ) : (
           <Text dimColor wrap="truncate-end">
-            ←↑↓→ Navigate · Enter Select · Space View · F Favorite
-            {hidden.length > 0 && " · H Hidden"} · Esc Exit
+            ↑↓←→ Navigate · Enter Run · Space View · ? Help · Esc Exit
           </Text>
         )}
       </Box>
