@@ -9,6 +9,8 @@
 Terminal UI for browsing and running `package.json` scripts. Works in single
 packages and npm, Yarn, pnpm and Bun workspaces.
 
+**[Documentation](https://heleg.github.io/runpad/)**
+
 ![RunPad demo](./demo.gif)
 
 ## Why
@@ -58,7 +60,9 @@ scripts:
       description: Vite dev server on :5173
 ```
 
-Prefer JSON? `runpad.config.json` works too, with the same schema.
+Prefer JSON? `runpad.config.json` works too, with the same schema. Every option
+is described in the
+[docs](https://heleg.github.io/runpad/guides/configuration/).
 
 ## Favorites
 
