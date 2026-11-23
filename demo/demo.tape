@@ -1,5 +1,6 @@
-# The demo GIF in the README and on the website. Re-record from the repo
-# root after `bun run build`:
+# The demo in the README (GIF) and on the website (WebM and MP4: full
+# color, smaller than the GIF). Re-record from the repo root after
+# `bun run build`:
 #
 #   vhs demo/demo.tape
 #
@@ -7,12 +8,15 @@
 # `demo/bin/vite` stands in for Vite, so nothing needs installing.
 
 Output demo.gif
+Output website/public/demo.webm
+Output website/public/demo.mp4
 
 Set Shell bash
-Set FontSize 20
-Set Width 1200
-Set Height 560
-Set Padding 24
+# Twice the size it is shown at, so text stays sharp on HiDPI screens.
+Set FontSize 40
+Set Width 2400
+Set Height 1120
+Set Padding 48
 Set WindowBar Colorful
 Set TypingSpeed 90ms
 Set Framerate 24

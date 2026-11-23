@@ -1,6 +1,7 @@
 // @ts-check
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import starlightLlmsTxt from "starlight-llms-txt";
 
 // GitHub Pages serves the site from heleg.github.io/runpad/. Links in
 // content are relative, Markdown links don't get `base` added.
@@ -13,6 +14,40 @@ export default defineConfig({
       // Light green in both themes, like the home page hero.
       logo: { src: "./src/assets/logo-dark.svg" },
       customCss: ["./src/styles/custom.css"],
+      // llms.txt, llms-full.txt and llms-small.txt for AI assistants, built
+      // from the same pages as the site.
+      plugins: [
+        starlightLlmsTxt({
+          details: [
+            "- RunPad is a CLI (`rp`, or `runpad`) installed from npm as `@heleg/runpad`.",
+            "- Its optional team config is `runpad.config.yaml`, `.yml` or `.json` in the workspace root; the JSON Schema is at https://unpkg.com/@heleg/runpad/schema.json.",
+            "- Favorites and the last run script are personal and live outside the project.",
+          ].join("\n"),
+          optionalLinks: [
+            {
+              label: "Source on GitHub",
+              url: "https://github.com/heleg/runpad",
+            },
+            {
+              label: "Package on npm",
+              url: "https://www.npmjs.com/package/@heleg/runpad",
+            },
+          ],
+          // Pages in menu order. `exclude` only applies to llms-small.txt;
+          // llms-full.txt takes every page, so 404 goes last there.
+          promote: [
+            "index*",
+            "guides/getting-started",
+            "guides/usage",
+            "guides/configuration",
+          ],
+          demote: ["404"],
+          exclude: ["404"],
+          // Collapsing whitespace turns the keys and marks tables into one
+          // line in llms-small.txt.
+          minify: { whitespace: false },
+        }),
+      ],
       // Adds a Docs link next to the title, so the home page (no sidebar)
       // links to the docs too.
       components: {
