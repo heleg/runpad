@@ -5,7 +5,8 @@
     "playground/**",
     "schema.json",
     "website/.astro/**",
-    "website/dist/**"
+    "website/dist/**",
+    "website/public/google*.html"
   ],
   "sortImports": true,
   "printWidth": 80,
